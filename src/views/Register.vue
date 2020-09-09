@@ -117,6 +117,7 @@ export default {
       this.joinLoader = true;
       await this.joinSalon(this.salon_key);
       this.joinLoader = false;
+      this.$router.push("/");
     },
   },
 };

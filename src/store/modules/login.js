@@ -48,28 +48,32 @@ const actions = {
         }
         return true;
     },
-    async logOut({commit}) {
+    async logOut({ commit }) {
         await auth.signOut();
         commit('setIsLoggedIn', false);
         commit('setUser', null);
         console.log("logged out");
         return;
     },
-    async joinSalon({commit}, key) {
+    async joinSalon({ commit }, key) {
         const snapshot = await db.collection('salons').where('key', '==', key).get();
-        if(snapshot.empty) {
+        if (snapshot.empty) {
             console.log('Cannot find salon');
             console.log(commit);
             return;
         }
-        console.log(state.user.uid);
         snapshot.forEach(async doc => {
+            let data = doc.data();
             await db.collection('users').doc(state.user.uid).update({
                 salon: {
-                    name: doc.name,
+                    name: data.name,
                     ref: db.collection('salons').doc(doc.id),
                 }
-            })
+            });
+            let userDoc = await db.collection('users').doc(state.user.uid).get();
+            let userData = userDoc.data();
+            userData.id = userDoc.id;
+            commit('setUserData', userData);
         });
         return;
     },
@@ -82,12 +86,12 @@ const actions = {
                 commit('setUser', user);
                 let userDoc = await db.collection('users').doc(user.uid).get();
                 let userData = userDoc.data();
-                
-                if(userData !== undefined) {
+
+                if (userData !== undefined) {
                     userData.id = userDoc.id;
                     commit('setUserData', userData);
                 }
-                  
+
                 /*var email = user.email;
                 var uid = user.uid;
                 var displayName = user.displayName;
