@@ -1,4 +1,4 @@
-import { db, increment, decrement } from '@/main';
+import { db, increment, decrement, storageRef } from '@/main';
 import store from '../index';
 
 const state = {
@@ -28,7 +28,7 @@ const getters = {
 };
 
 const actions = {
-    async fetchEvents({ commit }) {
+    async fetchEvents({ commit, dispatch }) {
         try {
             let events = [];
             const res = await store.state.login.userData.salon.ref.collection('events').get();
@@ -40,7 +40,11 @@ const actions = {
             commit('setEvents', events);
             return;
         } catch (error) {
-            console.error(error)
+            console.error(error);
+            dispatch('showAlert', {
+                text: 'Nie udało się pobrać bazy danych wizyt',
+                success: false,
+            });
         }
     },
     async todayEvents({ commit }) {
@@ -187,10 +191,10 @@ const actions = {
             console.error(error)
         }
     },
-    async addEvent({ commit }, newEvent) {
-        let res = await store.state.login.userData.salon.ref.collection('events').add(newEvent);
-        newEvent.id = res.id;
+    async addEvent({ commit, dispatch }, newEvent) {
         try {
+            let res = await store.state.login.userData.salon.ref.collection('events').add(newEvent);
+            newEvent.id = res.id;
             const newItem = {
                 name: newEvent.name,
                 eventRef: store.state.login.userData.salon.ref.collection('events').doc(newEvent.id),
@@ -220,12 +224,20 @@ const actions = {
 
             await batch.commit();
             commit('eventAdded', newEvent);
+            dispatch('showAlert', {
+                text: 'Pomyślnie dodano wizytę',
+                success: true,
+            });
         } catch (e) {
             console.log('Batch failure:', e);
+            dispatch('showAlert', {
+                text: 'Nie udało się dodać wizyty',
+                success: false,
+            });
         }
         return;
     },
-    async removeEvent({ commit }, event, client, treatment) {
+    async removeEvent({ commit, dispatch }, event, client, treatment) {
         try {
             const batch = db.batch();
             if (client === null || client === undefined) {
@@ -256,13 +268,21 @@ const actions = {
 
             await batch.commit();
             commit('eventRemoved', event.id);
+            dispatch('showAlert', {
+                text: 'Pomyślnie usunięto wizytę',
+                success: true,
+            });
 
         } catch (error) {
             console.error(error);
+            dispatch('showAlert', {
+                text: 'Nie udało się dodać wizyty',
+                success: false,
+            });
         }
         return;
     },
-    async editEvent({ commit }, event) {
+    async editEvent({ commit, dispatch }, event) {
         try {
             const batch = db.batch();
             let
@@ -306,13 +326,21 @@ const actions = {
 
             await batch.commit();
             commit('eventUpdated', event);
+            dispatch('showAlert', {
+                text: 'Pomyślnie zaktualizowano wizytę',
+                success: true,
+            });
 
         } catch (error) {
             console.error(error);
+            dispatch('showAlert', {
+                text: 'Nie udało się zaktualizować wizyty',
+                success: false,
+            });
         }
         return;
     },
-    async confirmEvent({ commit }, event) {
+    async confirmEvent({ commit, dispatch }, event) {
         try {
             const batch = db.batch();
             let
@@ -347,21 +375,28 @@ const actions = {
 
             let tmpdate = new Date();
             let dd = new Date(event.start);
-            if(tmpdate.getDate() === dd.getDate()) {
+            if (tmpdate.getDate() === dd.getDate()) {
                 commit('eventTodayConfirmed', event.id);
                 return;
             }
             tmpdate.setDate(tmpdate.getDate() + 1);
-            if(tmpdate.getDate() === dd.getDate())
+            if (tmpdate.getDate() === dd.getDate())
                 commit('eventTomorrowConfirmed', event.id);
             else commit('eventDayAfterConfirmed', event.id);
-
+            dispatch('showAlert', {
+                text: 'Pomyślnie potwierdzono wizytę',
+                success: true,
+            });
         } catch (error) {
             console.error(error);
+            dispatch('showAlert', {
+                text: 'Nie udało się potwierdzić wizyty',
+                success: false,
+            });
         }
         return;
     },
-    async archiveEvent({ commit }, event) {
+    async archiveEvent({ commit, dispatch }, event) {
         try {
             const batch = db.batch();
             let
@@ -371,12 +406,28 @@ const actions = {
             client.id = clientDoc.id;
             let treatment = treatmentDoc.data();
             treatment.id = treatmentDoc.id;
+            const salonId = store.state.login.userData.salon.ref.id;
+            let urls = [];
+            let i;
+            for(i = 0; i < event.images.length; i++) {
+                let file = event.images[i];
+                let imageRef = storageRef.child(`${salonId}/${event.id}/${file.name}`);
+                await imageRef.put(file);
+                let url = await imageRef.getDownloadURL();
+                urls.push(url);
+            }
+            event.imageUrls = urls;
+            delete event.images;
 
             const clientEvent = client.plannedvisits.find(v => v.eventRef.id === event.id);
+            clientEvent.imageUrls = urls;
+            clientEvent.rate = event.rate;
             client.plannedvisits = client.plannedvisits.filter(v => v.eventRef.id !== event.id);
             client.pastvisits.push(clientEvent);
 
             const treatmentEvent = treatment.plannedvisits.find(v => v.eventRef.id === event.id);
+            treatmentEvent.imageUrls = urls;
+            treatmentEvent.rate = event.rate;
             treatment.plannedvisits = treatment.plannedvisits.filter(v => v.eventRef.id !== event.id);
             treatment.pastvisits.push(treatmentEvent);
 
@@ -397,12 +448,24 @@ const actions = {
                 visits: increment,
             });
 
+            batch.update(store.state.login.userData.salon.ref,{
+                visits: increment,
+            });
+
             await batch.commit();
 
             commit('setEvents', state.events.filter(v => v.id !== event.id));
-
+            dispatch('showAlert', {
+                text: 'Zakończono zabieg',
+                success: true,
+            });
+            dispatch('fetchSalon');
         } catch (error) {
             console.error(error);
+            dispatch('showAlert', {
+                text: 'Nie udało się zakończyć zabiegu',
+                success: false,
+            });
         }
         return;
     },

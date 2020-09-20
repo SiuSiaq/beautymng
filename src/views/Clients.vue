@@ -93,12 +93,7 @@
                   <v-expansion-panel-content>
                     <v-list>
                       <v-list-item-group>
-                        <v-list-item v-for="pastevent in selectedClient.pastvisits" :key="pastevent.id">
-                          <v-list-item-content>
-                            <v-list-item-title>{{ pastevent.name }}</v-list-item-title>
-                            <v-list-item-subtitle>{{ pastevent.start }}</v-list-item-subtitle>
-                          </v-list-item-content>
-                        </v-list-item>
+                        <Visit :event="pastevent" v-for="pastevent in selectedClient.pastvisits" :key="pastevent.id" />
                       </v-list-item-group>
                     </v-list>
                   </v-expansion-panel-content>
@@ -121,6 +116,7 @@ import { mapGetters, mapActions } from "vuex";
 import AddClient from "@/components/AddClient";
 import EditClient from "@/components/EditClient";
 import DeleteEvent from '@/components/DeleteEvent';
+import Visit from '@/components/Visit';
 
 export default {
   name: "Clients",
@@ -128,6 +124,7 @@ export default {
     AddClient,
     EditClient,
     DeleteEvent,
+    Visit,
   },
   data: () => ({
     selectedClient: {

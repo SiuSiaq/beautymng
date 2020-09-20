@@ -8,9 +8,32 @@
         <span class="font-weight-light">Mng</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon>mdi-dots-vertical</v-icon>
-      </v-btn>
+      <v-menu
+      transition="slide-y-transition"
+      close-on-content-click
+      bottom
+      left
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          icon
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-icon>mdi-dots-vertical</v-icon>
+        </v-btn>
+      </template>
+      <v-list>
+        <v-list-item v-for="(option, i) in options" :key="i">
+          <v-list-item-icon>
+            <v-icon>{{option.icon}}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{option.text}}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-menu>
     </v-app-bar>
 
     <v-navigation-drawer v-model="draw" color="secondary" app temporary>
@@ -52,6 +75,10 @@ export default {
       { icon: "mdi-bell-check", text: "Do potwierdzenia", route: "/confirms" },
       { icon: "mdi-account-box-multiple", text: "Klienci", route: "/clients" },
       { icon: "mdi-needle", text: "Zabiegi", route: "/treatments" },
+    ],
+    options: [
+      {icon: 'mdi-account-arrow-left', text: 'Umów nowego klienta'},
+      {icon: 'mdi-account', text: 'Umów istniejącego klienta'},
     ],
   }),
   methods: {

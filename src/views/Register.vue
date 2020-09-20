@@ -25,6 +25,22 @@
                 counter
                 @click:append="show = !show"
               ></v-text-field>
+              <v-text-field
+                v-model="name"
+                :counter="50"
+                :rules="nameRules"
+                label="Imię"
+                required
+              ></v-text-field>
+
+              <v-text-field
+                v-model="surname"
+                :counter="50"
+                :rules="surnameRules"
+                label="Nazwisko"
+                required
+              ></v-text-field>
+              <v-text-field v-model="phone" :rules="phoneRules" label="Telefon" required></v-text-field>
             </v-form>
             <div class="d-inline">
               <v-btn @click="reset" text>resetuj</v-btn>
@@ -40,15 +56,20 @@
           <v-stepper-content step="2">
             <v-row>
               <v-col cols="9">
-                <v-text-field 
-                  placeholder="ACFXYY" 
+                <v-text-field
+                  placeholder="ACFXYY"
                   label="Klucz salonu"
                   v-model="salon_key"
-                  :rules="salon_keyRules">
-                </v-text-field>
+                  :rules="salon_keyRules"
+                ></v-text-field>
               </v-col>
               <v-col cols="3">
-                <v-btn color="primary" @click.prevent="joinSalonClick" :loading="joinLoader" class="mt-3">Dołącz</v-btn>
+                <v-btn
+                  color="primary"
+                  @click.prevent="joinSalonClick"
+                  :loading="joinLoader"
+                  class="mt-3"
+                >Dołącz</v-btn>
               </v-col>
               <v-col cols="12">
                 <div class="text-h5 grey--text text-center">lub</div>
@@ -74,6 +95,21 @@ export default {
     loader: false,
     joinLoader: false,
     valid: true,
+    name: null,
+    surname: null,
+    phone: null,
+    phoneRules: [
+      (v) => !!v || "Numer telefonu jest wymagany",
+      (v) => /^\d{9}$/.test(v) || "Niepoprawny numer telefonu",
+    ],
+    nameRules: [
+      (v) => !!v || "Imię jest wymagane",
+      (v) => (v && v.length <= 50) || "Imię musi być krótsze niż 50 znaków",
+    ],
+    surnameRules: [
+      (v) => !!v || "Nazwisko jest wymagane",
+      (v) => (v && v.length <= 50) || "Nazwisko musi być krótsze niż 50 znaków",
+    ],
     email: "",
     emailRules: [
       (v) => !!v || "E-mail jest wymagany",
@@ -91,7 +127,7 @@ export default {
     ],
   }),
   methods: {
-    ...mapActions(["registerUser", 'joinSalon']),
+    ...mapActions(["registerUser", "joinSalon"]),
     validate() {
       this.$refs.form.validate();
     },
@@ -108,6 +144,9 @@ export default {
       let userData = {
         email: this.email,
         password: this.password,
+        name: this.name,
+        surname: this.surname,
+        phone: this.phone,
       };
       await this.registerUser(userData);
       this.loader = false;
@@ -115,9 +154,9 @@ export default {
     },
     async joinSalonClick() {
       this.joinLoader = true;
-      await this.joinSalon(this.salon_key);
+      let success = await this.joinSalon(this.salon_key);
       this.joinLoader = false;
-      this.$router.push("/");
+      if (success) this.$router.push("/");
     },
   },
 };

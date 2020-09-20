@@ -4,12 +4,18 @@ const state = {
     isLoggedIn: false,
     user: null,
     userData: null,
+    alert: {
+        show: false,
+        text: '',
+        success: true,
+    },
 }
 
 const getters = {
     getIsLoggedIn: state => state.isLoggedIn,
     getUser: state => state.user,
     getUserData: state => state.userData,
+    getAlert: state => state.alert,
 }
 
 const actions = {
@@ -21,6 +27,10 @@ const actions = {
                 commit('setUser', user.user);
                 await db.collection('users').doc(user.user.uid).set({
                     email: userCredentials.email,
+                    name: userCredentials.name,
+                    surname: userCredentials.surname,
+                    phone: userCredentials.phone,
+                    registered: new Date().toISOString(),
                 });
             }
             else return false;
@@ -55,15 +65,19 @@ const actions = {
         console.log("logged out");
         return;
     },
-    async joinSalon({ commit }, key) {
+    async joinSalon({ commit, dispatch }, key) {
         const snapshot = await db.collection('salons').where('key', '==', key).get();
         if (snapshot.empty) {
             console.log('Cannot find salon');
-            console.log(commit);
-            return;
+            dispatch('showAlert', {
+                text: 'Salon o podanym kluczu nie istnieje!',
+                success: false,
+            })
+            return false;
         }
         snapshot.forEach(async doc => {
             let data = doc.data();
+            data.id = doc.id;
             await db.collection('users').doc(state.user.uid).update({
                 salon: {
                     name: data.name,
@@ -74,10 +88,26 @@ const actions = {
             let userData = userDoc.data();
             userData.id = userDoc.id;
             commit('setUserData', userData);
+            await db.runTransaction(async (t) => {
+                let salonRef = db.collection('salons').doc(data.id);
+                const salon = await t.get(salonRef);
+                let users = salon.data().users;
+                users.push({
+                    name: state.userData.name,
+                    surname: state.userData.surname,
+                    ref: db.collection('users').doc(state.user.uid),
+                });
+                t.update(salonRef, {users: users});
+              });
         });
-        return;
+        return true;
     },
-    authStateChanged({ commit }) {
+    async showAlert({commit}, alert) {
+        alert.show = true;
+        commit('setAlert', alert);
+        setTimeout(() => commit('hideAlert'),3000);
+    },
+    authStateChanged({ commit, dispatch }) {
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 // User is signed in.
@@ -90,6 +120,7 @@ const actions = {
                 if (userData !== undefined) {
                     userData.id = userDoc.id;
                     commit('setUserData', userData);
+                    dispatch('fetchSalon');
                 }
 
                 /*var email = user.email;
@@ -109,6 +140,8 @@ const mutations = {
     setIsLoggedIn: (state, data) => state.isLoggedIn = data,
     setUser: (state, data) => state.user = data,
     setUserData: (state, data) => state.userData = data,
+    setAlert: (state, data) => state.alert = data,
+    hideAlert: (state) => state.alert.show = false,
 }
 
 export default {

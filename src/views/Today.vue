@@ -73,7 +73,7 @@
               <v-stepper-content step="3">
                 <v-row>
                   <v-col cols="12">
-                    <v-file-input multiple prepend-icon="mdi-camera-burst" label="Dodaj zdjęcia">
+                    <v-file-input v-model="images" multiple prepend-icon="mdi-camera-burst" label="Dodaj zdjęcia">
                       <template v-slot:selection="{ text }">
                         <v-chip small label color="primary">{{ text }}</v-chip>
                       </template>
@@ -161,6 +161,7 @@ export default {
     el: 1,
     rating: 0,
     archiveLoader: false,
+    images: [],
   }),
   mounted() {
     this.getData();
@@ -184,7 +185,10 @@ export default {
     },
     async archiveClick() {
       this.archiveLoader = true;
-      await this.archiveEvent(this.getCurrentEvent);
+      let obj = this.getCurrentEvent;
+      obj.images = this.images;
+      obj.rate = this.rating;
+      await this.archiveEvent(obj);
       this.archiveLoader = false;
       this.todayLeftEvents();
       await this.todayEvents();

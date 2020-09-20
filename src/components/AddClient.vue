@@ -15,14 +15,6 @@
         </v-btn>
       </v-card-title>
 
-      <v-alert
-        transition="slide-y-transition"
-        tile
-        dismissible
-        type="error"
-        v-model="timeError"
-      >Nie udało się dodać klienta</v-alert>
-
       <v-form ref="form" v-model="valid" class="mx-5">
         <v-text-field
           class="mt-4"

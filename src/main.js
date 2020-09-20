@@ -6,6 +6,7 @@ import vuetify from './plugins/vuetify';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
+import 'firebase/storage'
 
 Vue.config.productionTip = false
 
@@ -22,6 +23,7 @@ firebase.initializeApp({
 
 export const db = firebase.firestore();
 export const auth = firebase.auth();
+export const storageRef = firebase.storage().ref();
 export const increment = firebase.firestore.FieldValue.increment(1);
 export const decrement = firebase.firestore.FieldValue.increment(-1);
 export let uid = null;
