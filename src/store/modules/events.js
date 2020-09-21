@@ -276,7 +276,7 @@ const actions = {
         } catch (error) {
             console.error(error);
             dispatch('showAlert', {
-                text: 'Nie udało się dodać wizyty',
+                text: 'Nie udało się usunąć wizyty',
                 success: false,
             });
         }

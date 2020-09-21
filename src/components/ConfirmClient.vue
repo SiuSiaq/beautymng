@@ -6,7 +6,7 @@
     <v-card class="px-5 pb-2">
       <v-card-title>Potwierdzanie wizyty</v-card-title>
       <div class="caption">Telefon</div>
-      <div>{{event.clientPhone}}</div>
+      <div><a :href="`tel:${event.clientPhone}`">{{ event.clientPhone }}</a></div>
       <div class="caption">Klient</div>
       <div>{{event.clientName}}</div>
       <div class="caption">Termin</div>

@@ -20,7 +20,7 @@
     <v-card class="px-5 pb-2">
       <v-card-title>Potwierdzanie wizyty</v-card-title>
       <div class="caption">Telefon</div>
-      <div>{{event.clientPhone}}</div>
+      <div><a :href="`tel:${event.clientPhone}`">{{ event.clientPhone }}</a></div>
       <div class="caption">Klient</div>
       <div>{{event.clientName}}</div>
       <div class="caption">Termin</div>
@@ -31,7 +31,7 @@
       <v-card-actions>
         <v-btn @click="dialog = false" text>anuluj</v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="error" text>usuń</v-btn>
+        <v-btn color="error" text>anuluj wizytę</v-btn>
         <v-btn color="success" text :loading="loader" @click="confirmClick">potwierdź</v-btn>
       </v-card-actions>
     </v-card>

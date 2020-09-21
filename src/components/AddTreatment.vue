@@ -41,7 +41,7 @@
           required
         ></v-text-field>
         <v-textarea
-        rows="1"
+          rows="1"
           v-model="treatmentDesc"
           auto-grow
           clearable

@@ -63,9 +63,9 @@
           :activator="selectedElement"
           offset-x
         >
-          <v-card color="grey lighten-4" min-width="350px" flat>
+          <v-card color="grey lighten-4" max-width="350" flat>
             <v-toolbar :color="selectedEvent.color" dark>
-              <EditEvent @eventUpdated="selectedOpen = false"/>
+              <EditEvent @eventUpdated="selectedOpen = false" />
               <v-toolbar-title>{{selectedEvent.name}}</v-toolbar-title>
             </v-toolbar>
             <v-expansion-panels>
@@ -138,6 +138,14 @@
                   </v-simple-table>
                 </v-expansion-panel-content>
               </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-header disable-icon-rotate>
+                  Status:<span class="ml-1" :class="selectedEvent.confirmed ? 'success--text' : 'error--text'"> {{ selectedEvent.confirmed ? 'Potwierdzono' : 'Nie potwierdzono' }}</span>
+                  <template v-slot:actions>
+                    <v-icon :color="selectedEvent.confirmed ? 'success' : 'error'">{{selectedEvent.confirmed ? 'mdi-check' : 'mdi-close-circle'}}</v-icon>
+                  </template>
+                </v-expansion-panel-header>
+              </v-expansion-panel>
             </v-expansion-panels>
             <v-card-actions>
               <v-btn text color="primary" @click="selectedOpen = false">anuluj</v-btn>
@@ -154,7 +162,7 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import EditEvent from '@/components/EditEvent';
+import EditEvent from "@/components/EditEvent";
 
 export default {
   components: {
@@ -180,12 +188,12 @@ export default {
   mounted() {
     this.fetchEvents();
     this.$refs.calendar.checkChange();
-    this.ready = true
-    this.scrollToTime()
-    this.updateTime()
+    this.ready = true;
+    this.scrollToTime();
+    this.updateTime();
   },
   methods: {
-    ...mapActions(["fetchEvents", "removeEvent", 'selectEvent']),
+    ...mapActions(["fetchEvents", "removeEvent", "selectEvent"]),
     viewDay({ date }) {
       this.focus = date;
       this.type = "day";

@@ -99,6 +99,7 @@ const actions = {
                 });
                 t.update(salonRef, {users: users});
               });
+            dispatch('fetchSalon');
         });
         return true;
     },

@@ -37,12 +37,18 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 export default {
   data: () => ({}),
   computed: {
     ...mapGetters(["getSalon"]),
   },
+  methods: {
+    ...mapActions(['fetchSalon']),
+  },
+  mounted() {
+    this.fetchSalon;
+  }
 };
 </script>
 

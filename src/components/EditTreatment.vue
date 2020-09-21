@@ -38,6 +38,14 @@
           type="number"
           required
         ></v-text-field>
+        <v-textarea
+          rows="1"
+          v-model="treatment.description"
+          auto-grow
+          clearable
+          label="Opis"
+          >
+        </v-textarea>
         <div class="caption mb-2">Kolor</div>
         <v-color-picker required class="ml-5" v-model="treatment.color" hide-inputs></v-color-picker>
       </v-form>
@@ -96,6 +104,9 @@ export default {
           price: this.treatment.price,
           color: this.treatment.color,
           visits: this.treatment.visits,
+          plannedvisits: this.treatment.plannedvisits,
+          pastvisits: this.treatment.pastvisits,
+          description: this.treatment.description !== undefined ? this.treatment.description : '',
         };
 
         this.loader = true;

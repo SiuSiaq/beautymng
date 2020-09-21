@@ -43,7 +43,7 @@
             </v-col>
             <v-col cols="6">
               <div class="caption">Cena</div>
-              <div>{{ selectedTreatment.price }}</div>
+              <div>{{ selectedTreatment.price }} zł</div>
             </v-col>
             <v-col cols="6">
               <div class="caption">Wykonano</div>
