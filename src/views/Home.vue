@@ -22,11 +22,7 @@
             <div class="caption ml-2">Pracownicy</div>
             <v-list>
               <v-list-item-group>
-                <v-list-item v-for="(user, i) in getSalon.users" :key="i">
-                  <v-list-item-content>
-                    <v-list-item-title>{{user.name}} {{user.surname}}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
+                <User :user="user" v-for="(user, i) in getSalon.users" :key="i" />
               </v-list-item-group>
             </v-list>
           </v-col>
@@ -38,6 +34,7 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import User from '@/components/User'
 export default {
   data: () => ({}),
   computed: {
@@ -48,6 +45,9 @@ export default {
   },
   mounted() {
     this.fetchSalon;
+  },
+  components: {
+    User,
   }
 };
 </script>

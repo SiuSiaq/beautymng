@@ -70,7 +70,7 @@
                       <div v-else class="error--text subtitle-1">Nie potwierdzono</div>
                       <div class="text-h5 text--primary">{{plvisit.start.slice(0, 10)}}<br>{{plvisit.start.slice(10)}}</div>
                       <div class="text-h6 font-weight-regular">
-                        {{plvisit.name}}
+                        {{plvisit.clientName}}
                         <br />
                       </div>
                     </v-card-text> 

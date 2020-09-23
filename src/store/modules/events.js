@@ -35,6 +35,8 @@ const actions = {
             res.forEach(doc => {
                 let event = doc.data();
                 event.id = doc.id;
+                event.startDate = event.startDate.toDate(),
+                event.endDate = event.endDate.toDate(),
                 events.push(event);
             });
             commit('setEvents', events);
@@ -54,7 +56,7 @@ const actions = {
                 let tempDate = new Date(v.end);
                 return tempDate.getFullYear() === today.getFullYear()
                     && tempDate.getMonth() === today.getMonth()
-                    && tempDate.getDate() === today.getDate() && today < tempDate;
+                    && tempDate.getDate() === today.getDate();
             });
             tdEvents.sort((a, b) => {
                 let d1 = new Date(a.start),
@@ -200,7 +202,9 @@ const actions = {
                 eventRef: store.state.login.userData.salon.ref.collection('events').doc(newEvent.id),
                 confirmed: false,
                 start: newEvent.start,
+                startDate: newEvent.startDate,
                 clientName: newEvent.clientName,
+                doctor: newEvent.doctor,
             }
             const doc1 = await newEvent.treatmentRef.get();
             let newTreatment = doc1.data();
@@ -220,6 +224,10 @@ const actions = {
             batch.update(newEvent.clientRef, {
                 plannedcount: increment,
                 plannedvisits: newClient.plannedvisits,
+            });
+
+            batch.update(newEvent.doctor.ref, {
+                plannedcount: increment,
             });
 
             await batch.commit();
@@ -264,6 +272,10 @@ const actions = {
                 plannedcount: decrement,
             });
 
+            batch.update(event.doctor.ref, {
+                plannedcount: decrement,
+            });
+
             batch.delete(store.state.login.userData.salon.ref.collection('events').doc(event.id));
 
             await batch.commit();
@@ -299,7 +311,8 @@ const actions = {
                 confirmed: obj.confirmed,
                 clientName: obj.clientName,
                 start: event.start,
-                end: event.end
+                startDate: event.startDate,
+                doctor: event.doctor,
             } : obj);
 
             treatment.plannedvisits = treatment.plannedvisits.map(obj => obj.eventRef.id === event.id ? {
@@ -308,7 +321,8 @@ const actions = {
                 confirmed: obj.confirmed,
                 clientName: obj.clientName,
                 start: event.start,
-                end: event.end
+                startDate: event.startDate,
+                doctor: event.doctor,
             } : obj);
 
             batch.update(event.clientRef, {
@@ -383,6 +397,7 @@ const actions = {
             if (tmpdate.getDate() === dd.getDate())
                 commit('eventTomorrowConfirmed', event.id);
             else commit('eventDayAfterConfirmed', event.id);
+
             dispatch('showAlert', {
                 text: 'Pomyślnie potwierdzono wizytę',
                 success: true,
@@ -422,17 +437,24 @@ const actions = {
             const clientEvent = client.plannedvisits.find(v => v.eventRef.id === event.id);
             clientEvent.imageUrls = urls;
             clientEvent.rate = event.rate;
+            clientEvent.price = event.price;
+            clientEvent.additionalTreatments = event.additionalTreatments.map(v => v.name);
             client.plannedvisits = client.plannedvisits.filter(v => v.eventRef.id !== event.id);
             client.pastvisits.push(clientEvent);
 
             const treatmentEvent = treatment.plannedvisits.find(v => v.eventRef.id === event.id);
             treatmentEvent.imageUrls = urls;
             treatmentEvent.rate = event.rate;
+            treatmentEvent.price = event.price;
+            treatmentEvent.additionalTreatments = event.additionalTreatments.map(v => v.name);
             treatment.plannedvisits = treatment.plannedvisits.filter(v => v.eventRef.id !== event.id);
             treatment.pastvisits.push(treatmentEvent);
 
-            batch.delete(store.state.login.userData.salon.ref.collection('events').doc(event.id));
-            batch.set(store.state.login.userData.salon.ref.collection('archivedevents').doc(event.id), event)
+            batch.update(store.state.login.userData.salon.ref.collection('events').doc(event.id), {
+                archived: true,
+                additionalTreatments: event.additionalTreatments.map(v => v.name),
+                price: event.price,
+            });
 
             batch.update(event.clientRef, {
                 plannedvisits: client.plannedvisits,
@@ -452,9 +474,14 @@ const actions = {
                 visits: increment,
             });
 
+            batch.update(event.doctor.ref,{
+                visits: increment,
+            });
+
             await batch.commit();
 
-            commit('setEvents', state.events.filter(v => v.id !== event.id));
+            commit('eventUpdated', event);
+
             dispatch('showAlert', {
                 text: 'Zakończono zabieg',
                 success: true,
@@ -472,15 +499,6 @@ const actions = {
     async selectEvent({ commit }, event) {
         commit('setSelectedEvent', event);
     },
-    async currentEvent({ commit }) {
-        const now = new Date();
-        const event = state.todayEvents.find(v => {
-            const tempStart = new Date(v.start);
-            const tempEnd = new Date(v.end);
-            return now >= tempStart && now <= tempEnd;
-        });
-        commit('setCurrentEvent', event);
-    }
 };
 
 const mutations = {

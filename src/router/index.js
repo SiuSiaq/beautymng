@@ -8,6 +8,7 @@ import Today from '../views/Today'
 import Confirms from '../views/Confirms'
 import Login from '../views/Login'
 import Register from '../views/Register'
+import Settings from '../views/Settings'
 import { auth } from '@/main'
 
 Vue.use(VueRouter)
@@ -57,6 +58,14 @@ Vue.use(VueRouter)
     path: '/confirms',
     name: 'confirms',
     component: Confirms,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: Settings,
     meta: {
       requiresAuth: true,
     },

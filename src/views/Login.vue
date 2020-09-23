@@ -67,7 +67,6 @@ export default {
       if (!this.$refs.form.validate()) return;
 
       this.loader = true;
-      console.log(this.password);
       const data = {
         email: this.email,
         password: this.password,

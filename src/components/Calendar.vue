@@ -65,7 +65,7 @@
         >
           <v-card color="grey lighten-4" max-width="350" flat>
             <v-toolbar :color="selectedEvent.color" dark>
-              <EditEvent @eventUpdated="selectedOpen = false" />
+              <EditEvent @eventUpdated="selectedOpen = false" v-if="!selectedEvent.archived"/>
               <v-toolbar-title>{{selectedEvent.name}}</v-toolbar-title>
             </v-toolbar>
             <v-expansion-panels>
@@ -140,6 +140,14 @@
               </v-expansion-panel>
               <v-expansion-panel>
                 <v-expansion-panel-header disable-icon-rotate>
+                  Wykonawca: {{ selectedEvent.doctorName }}
+                  <template v-slot:actions>
+                    <v-icon color="primary">mdi-doctor</v-icon>
+                  </template>
+                </v-expansion-panel-header>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-header disable-icon-rotate>
                   Status:<span class="ml-1" :class="selectedEvent.confirmed ? 'success--text' : 'error--text'"> {{ selectedEvent.confirmed ? 'Potwierdzono' : 'Nie potwierdzono' }}</span>
                   <template v-slot:actions>
                     <v-icon :color="selectedEvent.confirmed ? 'success' : 'error'">{{selectedEvent.confirmed ? 'mdi-check' : 'mdi-close-circle'}}</v-icon>
@@ -150,7 +158,7 @@
             <v-card-actions>
               <v-btn text color="primary" @click="selectedOpen = false">anuluj</v-btn>
 
-              <v-btn text color="primary" :loading="deleteLoader" @click="deleteClick">usuń</v-btn>
+              <v-btn text color="primary" :loading="deleteLoader" @click="deleteClick" v-if="!selectedEvent.archived">usuń</v-btn>
             </v-card-actions>
           </v-card>
         </v-menu>

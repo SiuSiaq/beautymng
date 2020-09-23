@@ -47,6 +47,15 @@
             <v-list-item-content>
               <v-list-item-title class="white--text" v-text="item.text"></v-list-item-title>
             </v-list-item-content>
+          </v-list-item >
+          <v-list-item v-if="isAdmin" :to="settings">
+            <v-list-item-icon>
+              <v-icon class="white--text">mdi-cog</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title class="white--text">Ustawienia salonu</v-list-item-title>
+            </v-list-item-content>
           </v-list-item>
           <v-list-item @click="logOutClick">
             <v-list-item-icon>
@@ -68,6 +77,7 @@ import { mapActions, mapGetters } from 'vuex';
 export default {
   data: () => ({
     draw: false,
+    settings: '/settings',
     items: [
       { icon: "mdi-view-dashboard", text: "Home", route: "/" },
       { icon: "mdi-calendar-text", text: "Kalendarz", route: "/calendar" },
@@ -89,7 +99,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getIsLoggedIn'])
+    ...mapGetters(['getIsLoggedIn', 'isAdmin'])
   },
 };
 </script>

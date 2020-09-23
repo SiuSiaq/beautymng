@@ -41,6 +41,18 @@
           required
         ></v-autocomplete>
 
+        <v-autocomplete
+          offset-y
+          @change="doctorSelected"
+          v-model="selectedDoctorId"
+          :items="getSalon.users"
+          item-text="fullname"
+          item-value="ref.id"
+          :rules="[v => !!v || 'Wykonawca jest wymagany']"
+          label="Wykonawca zabiegu"
+          required
+        ></v-autocomplete>
+
         <v-menu
           v-model="menu1"
           :close-on-content-click="false"
@@ -98,8 +110,29 @@ export default {
     selectedTreatment: null,
     selectedClientId: null,
     selectedClient: null,
+    selectedDoctorId: null,
+    selectedDoctor: null,
     selectedDate: null,
-    hours: [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+    doctor: null,
+    hours: [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
     minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
     timeHour: null,
     timeMinute: null,
@@ -141,40 +174,26 @@ export default {
         clientName: `${client.name} ${client.surname}`,
         clientPhone: client.phone,
         clientEmail: client.email,
-        clientRef: this.getUserData.salon.ref.collection("clients").doc(client.id),
-        treatmentRef: this.getUserData.salon.ref.collection("treatments").doc(treatment.id),
-        start: `${startDate.getFullYear()}-${
-          startDate.getMonth() + 1 < 10
-            ? "0" + (startDate.getMonth() + 1)
-            : startDate.getMonth() + 1
-        }-${
-          startDate.getDate() < 10
-            ? "0" + startDate.getDate()
-            : startDate.getDate()
-        } ${
-          startDate.getHours() < 10
-            ? "0" + startDate.getHours()
-            : startDate.getHours()
-        }:${
-          startDate.getMinutes() < 10
-            ? "0" + startDate.getMinutes()
-            : startDate.getMinutes()
-        }`,
-        end: `${endDate.getFullYear()}-${
-          endDate.getMonth() + 1 < 10
-            ? "0" + (endDate.getMonth() + 1)
-            : endDate.getMonth() + 1
-        }-${
-          endDate.getDate() < 10 ? "0" + endDate.getDate() : endDate.getDate()
-        } ${
-          endDate.getHours() < 10
-            ? "0" + endDate.getHours()
-            : endDate.getHours()
-        }:${
-          endDate.getMinutes() < 10
-            ? "0" + endDate.getMinutes()
-            : endDate.getMinutes()
-        }`,
+        clientRef: this.getUserData.salon.ref
+          .collection("clients")
+          .doc(client.id),
+        treatmentRef: this.getUserData.salon.ref
+          .collection("treatments")
+          .doc(treatment.id),
+        start: `${startDate
+          .toISOString()
+          .slice(0, 10)} ${finalHour}:${finalMinute}`,
+        end: `${endDate
+          .toISOString()
+          .slice(0, 10)} ${endDate.getHours()}:${endDate.getMinutes()}`,
+        startDate: startDate,
+        endDate: endDate,
+        doctor: this.selectedDoctor,
+        doctorName: this.selectedDoctor.fullname,
+        archived: false,
+        category: this.selectedDoctor.fullname,
+        price: treatment.price,
+        additionalTreatments: [],
       };
 
       this.loader = true;
@@ -197,6 +216,11 @@ export default {
         return v.id === this.selectedClientId;
       });
     },
+    doctorSelected() {
+      this.selectedDoctor = this.getSalon.users.find((v) => {
+        return v.ref.id === this.selectedDoctorId;
+      });
+    },
     formatDate(date) {
       if (!date) return null;
 
@@ -205,19 +229,33 @@ export default {
         day = date.slice(8, 10);
       return `${year}-${month}-${day}`;
     },
+    doctors() {
+      let cats = [];
+      this.getSalon.users.forEach((user) => {
+        if (user.doctor) cats.push(`${user.name} ${user.surname}`);
+      });
+      console.log(cats);
+      return cats;
+    },
   },
   mounted() {
     this.fetchClients();
     this.fetchTreatments();
   },
   computed: {
-    ...mapGetters(["getAllClients", "getAllTreatments", 'getUserData']),
+    ...mapGetters([
+      "getAllClients",
+      "getAllTreatments",
+      "getUserData",
+      'getSalon',
+    ]),
     computedDateFormatted: {
       get() {
         return this.formatDate(this.date);
-      }, set(val) {
+      },
+      set(val) {
         this.date = val;
-      }
+      },
     },
   },
 };

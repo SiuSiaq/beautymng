@@ -30,6 +30,7 @@ const actions = {
                     name: userCredentials.name,
                     surname: userCredentials.surname,
                     phone: userCredentials.phone,
+                    doctor: false,
                     registered: new Date().toISOString(),
                 });
             }
@@ -95,6 +96,10 @@ const actions = {
                 users.push({
                     name: state.userData.name,
                     surname: state.userData.surname,
+                    fullname: `${userData.name} ${userData.surname}`,
+                    id: state.user.uid,
+                    doctor: false,
+                    visits: 0,
                     ref: db.collection('users').doc(state.user.uid),
                 });
                 t.update(salonRef, {users: users});
@@ -112,7 +117,6 @@ const actions = {
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 // User is signed in.
-                console.log(`User uid: ${user.uid}`);
                 commit('setIsLoggedIn', true);
                 commit('setUser', user);
                 let userDoc = await db.collection('users').doc(user.uid).get();
