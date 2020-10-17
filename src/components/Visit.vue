@@ -22,7 +22,7 @@
           </v-col>
           <v-col cols="12" md="6">
             <div class="caption mt-1">Dodatkowe zabiegi</div>
-            <div class="subtitle-1">{{additionalTreatments}}</div>
+            <div class="subtitle-1">{{event.additionalTreatments.length > 0 ? additionalTreatments : 'Brak dodatkowych zabiegów'}}</div>
           </v-col>
           <v-col cols="12" md="6">
             <div class="caption mt-1">Wykonawca</div>

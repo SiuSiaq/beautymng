@@ -87,28 +87,13 @@ export default {
     async submit() {
       if (!this.$refs.form.validate()) return;
 
-      const date = new Date();
-      let month;
-      if (date.getMonth() + 1 < 10) {
-        month = `0${date.getMonth() + 1}`;
-      } else {
-        month = `${date.getMonth() + 1}`;
-      }
-
-      let day;
-      if (date.getDate() < 10) {
-        day = `0${date.getDate()}`;
-      } else {
-        day = `${date.getDate()}`;
-      }
-
       const newClient = {
         name: this.clientName,
         surname: this.clientSurname,
         fullname: `${this.clientName} ${this.clientSurname}`,
         email: this.clientEmail,
         phone: this.clientPhone,
-        registered: `${day}.${month}.${date.getFullYear()}`,
+        registered: new Date().toISOString().slice(0, 10),
         visits: 0,
         plannedcount: 0,
         plannedvisits: [],
@@ -117,7 +102,7 @@ export default {
       };
 
       this.loader = true;
-      await this.addClient(newClient, this.loader);
+      await this.addClient(newClient);
       this.loader = false;
       this.dialog = false;
       this.reset();

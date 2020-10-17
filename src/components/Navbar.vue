@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-app-bar dark color="primary">
+    <v-app-bar flat dark color="primary">
       <v-app-bar-nav-icon v-if="getIsLoggedIn" @click="draw = !draw"></v-app-bar-nav-icon>
 
       <v-toolbar-title class="text-uppercase font-weight-bold white--text">
@@ -24,14 +24,7 @@
         </v-btn>
       </template>
       <v-list>
-        <v-list-item v-for="(option, i) in options" :key="i">
-          <v-list-item-icon>
-            <v-icon>{{option.icon}}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{option.text}}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        <AddClientVisit />
       </v-list>
     </v-menu>
     </v-app-bar>
@@ -74,7 +67,11 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import AddClientVisit from '@/components/AddClientVisit'
 export default {
+  components: {
+    AddClientVisit
+  },
   data: () => ({
     draw: false,
     settings: '/settings',
@@ -85,6 +82,7 @@ export default {
       { icon: "mdi-bell-check", text: "Do potwierdzenia", route: "/confirms" },
       { icon: "mdi-account-box-multiple", text: "Klienci", route: "/clients" },
       { icon: "mdi-needle", text: "Zabiegi", route: "/treatments" },
+      { icon: "mdi-finance", text: "Statystyki", route: "/statistics" },
     ],
     options: [
       {icon: 'mdi-account-arrow-left', text: 'Umów nowego klienta'},

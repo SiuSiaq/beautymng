@@ -10,7 +10,7 @@
 
         <v-divider></v-divider>
 
-        <v-stepper-step :complete="el > 2" step="2">Ocena zabiegu</v-stepper-step>
+        <v-stepper-step :complete="el > 2" step="2">Ocena klientki</v-stepper-step>
 
         <v-divider></v-divider>
 

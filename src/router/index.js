@@ -9,6 +9,7 @@ import Confirms from '../views/Confirms'
 import Login from '../views/Login'
 import Register from '../views/Register'
 import Settings from '../views/Settings'
+import Statistics from '../views/Statistics'
 import { auth } from '@/main'
 
 Vue.use(VueRouter)
@@ -66,6 +67,14 @@ Vue.use(VueRouter)
     path: '/settings',
     name: 'settings',
     component: Settings,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/statistics',
+    name: 'statistics',
+    component: Statistics,
     meta: {
       requiresAuth: true,
     },

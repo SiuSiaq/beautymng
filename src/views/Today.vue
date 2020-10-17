@@ -126,7 +126,7 @@
             <v-card-actions>
               <v-btn text color="black" @click="selectedOpen = false">anuluj</v-btn>
               <v-spacer></v-spacer>
-              <EventSummary :event="selectedEvent" @archived="selectedOpen = false"/>
+              <EventSummary :event="selectedEvent" @archived="selectedOpen = false" v-if="!selectedEvent.archived"/>
             </v-card-actions>
           </v-card>
         </v-menu>

@@ -9,11 +9,13 @@ const state = {
         }
     },
     admin: false,
+    statsType: 'Rok',
 }
 
 const getters = {
     getSalon: state => state.salon,
     isAdmin: state => state.admin,
+    getStatsType: state => state.statsType,
 }
 
 const actions = {
@@ -67,12 +69,16 @@ const actions = {
                 success: false,
             });
         }
-    }
+    },
+    setStatsType({commit}, type) {
+        commit('statsTypeSet', type);
+    },
 }
 
 const mutations = {
     setSalon: (state, data) => state.salon = data,
     setAdmin: (state, isTrue) => state.admin = isTrue,
+    statsTypeSet: (state, type) => state.statsType = type,
 }
 
 export default {

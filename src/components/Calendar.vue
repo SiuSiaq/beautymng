@@ -41,7 +41,7 @@
           ref="calendar"
           v-model="focus"
           color="primary"
-          weekdays="[0, 1, 2, 3, 4, 5, 6, 0]"
+          :weekdays="weekdays"
           :events="getAllEvents"
           :event-color="getEventColor"
           :type="type"
@@ -177,6 +177,7 @@ export default {
     EditEvent,
   },
   data: () => ({
+    weekdays: [1, 2, 3, 4, 5, 6, 0],
     focus: "",
     type: "week",
     typeToLabel: {
