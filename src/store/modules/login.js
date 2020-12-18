@@ -43,7 +43,8 @@ const actions = {
     },
     async logIn({ commit }, userData) {
         try {
-            let user = await auth.signInWithEmailAndPassword(userData.email, userData.password);
+            const temp = await auth.signInWithEmailAndPassword(userData.email, userData.password);
+            let user = temp.user;
             if (user) {
                 commit('setIsLoggedIn', true);
                 commit('setUser', user);
@@ -102,16 +103,16 @@ const actions = {
                     visits: 0,
                     ref: db.collection('users').doc(state.user.uid),
                 });
-                t.update(salonRef, {users: users});
-              });
+                t.update(salonRef, { users: users });
+            });
             dispatch('fetchSalon');
         });
         return true;
     },
-    async showAlert({commit}, alert) {
+    async showAlert({ commit }, alert) {
         alert.show = true;
         commit('setAlert', alert);
-        setTimeout(() => commit('hideAlert'),3000);
+        setTimeout(() => commit('hideAlert'), 3000);
     },
     authStateChanged({ commit, dispatch }) {
         auth.onAuthStateChanged(async (user) => {
@@ -128,6 +129,10 @@ const actions = {
                     dispatch('fetchSalon');
                 }
 
+                dispatch('fetchEvents')
+                dispatch('fetchClients')
+                dispatch('fetchTreatments')
+
                 /*var email = user.email;
                 var uid = user.uid;
                 var displayName = user.displayName;
@@ -136,9 +141,11 @@ const actions = {
             } else {
                 // User is signed out.
                 console.log("User signed out");
+                commit('setIsLoggedIn', false);
+                commit('setUser', null);
             }
         });
-    }
+    },
 }
 
 const mutations = {

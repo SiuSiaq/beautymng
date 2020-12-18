@@ -63,7 +63,7 @@
                 v-if="selectedTreatment.plannedcount === 0 || selectedTreatment.plannedcount === undefined"
               >Brak zaplanowanych wizyt</div>
               <v-row v-else>
-                <v-col cols="12" md="3" v-for="plvisit in selectedTreatment.plannedvisits" :key="plvisit.start">
+                <v-col cols="12" md="3" v-for="plvisit in plannedvisits" :key="plvisit.start">
                   <v-card>
                     <v-card-text>
                       <div v-if="plvisit.confirmed" class="success--text subtitle-1">Potwierdzono</div>
@@ -88,15 +88,15 @@
                   <v-expansion-panel-content>
                     <v-list>
                       <v-list-item-group>
-                        <Visit :event="pastevent" v-for="pastevent in selectedTreatment.pastvisits" :key="pastevent.id" />
+                        <Visit :event="pastevent" v-for="pastevent in pastvisits" :key="pastevent.id" />
                       </v-list-item-group>
                     </v-list>
                   </v-expansion-panel-content>
                 </v-expansion-panel>
               </v-expansion-panels>
-              <div class="mt-4">
-                <v-btn v-if="selectedTreatment.id !== undefined" text color="error" @click="deleteTreatment(selectedTreatment.id)">Usuń</v-btn>
-                <EditTreatment v-if="selectedTreatment.id !== undefined" :treatment="selectedTreatment" />
+              <div class="mt-4" v-if="selectedTreatment.id !== undefined">
+                <v-btn text color="error" @click="deleteTreatment(selectedTreatment.id)">Usuń</v-btn>
+                <EditTreatment :treatment="selectedTreatment" />
               </div>
             </v-col>
           </v-row>
@@ -130,16 +130,16 @@ export default {
       minutes: 0,
       price: 0,
       plannedcount: 0,
+    },
       pastvisits: [],
       plannedvisits: [],
-    },
     searchTreatmentId: null,
   }),
   computed: {
     ...mapGetters(["getAllTreatments"]),
   },
   methods: {
-    ...mapActions(["fetchTreatments", "removeTreatment"]),
+    ...mapActions(["removeTreatment", 'fetchTreatmentVisits']),
     getRandomColor() {
       return "#" + Math.floor(Math.random() * 16777215).toString(16);
     },
@@ -159,8 +159,14 @@ export default {
       this.selectedTreatment.plannedcount--;
     },
   },
-  mounted() {
-    this.fetchTreatments();
+  watch: {
+    async selectedTreatment(val) {
+      if(val) {
+        let visits = await this.fetchTreatmentVisits(val.id)
+        this.plannedvisits = visits.plannedvisits
+        this.pastvisits = visits.pastvisits
+      }
+    }
   },
 };
 </script>

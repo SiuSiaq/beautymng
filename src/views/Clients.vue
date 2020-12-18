@@ -1,11 +1,12 @@
 <template>
   <div class="test">
     <v-container fluid>
-      <AddClient @clientAdded="selectedClient = getAllClients[0]"/>
+      <AddClient @clientAdded="selectedClient = getAllClients[0]" />
       <v-row no-gutters>
         <v-col cols="12" md="3">
           <v-card class="px-4 pt-2">
             <v-autocomplete
+              no-data-text="Brak klientów w bazie danych"
               @change="searchSelect"
               offset-y
               v-model="searchClientId"
@@ -15,17 +16,28 @@
               label="Klient"
               prepend-icon="mdi-account-search-outline"
             ></v-autocomplete>
-            <v-list v-if="!$vuetify.breakpoint.mobile" three-line style="height:80vh; overflow-y: scroll;">
+            <v-list
+              v-if="!$vuetify.breakpoint.mobile"
+              three-line
+              style="height:80vh; overflow-y: scroll;"
+            >
               <v-list-item-group>
                 <v-list-item
                   @click="selectedClient = client"
                   v-for="client in getAllClients"
                   :key="client.id"
                 >
-                  <v-list-item-avatar class="white--text" :color="client.color">{{ client.name[0] }}</v-list-item-avatar>
+                  <v-list-item-avatar
+                    class="white--text"
+                    :color="client.color"
+                    >{{ client.name[0] }}</v-list-item-avatar
+                  >
                   <v-list-item-content>
                     <v-list-item-title>{{ client.fullname }}</v-list-item-title>
-                    <v-list-item-subtitle>{{client.phone}} <br> {{client.email}}</v-list-item-subtitle>
+                    <v-list-item-subtitle
+                      >{{ client.phone }} <br />
+                      {{ client.email }}</v-list-item-subtitle
+                    >
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
@@ -52,7 +64,7 @@
             </v-col>
             <v-col cols="12" sm="6">
               <div class="caption">Zarejestrowany</div>
-              <div>{{ selectedClient.registered }}</div>
+              <div>{{ registeredText }}</div>
             </v-col>
             <v-col cols="6">
               <div class="caption">Liczba wizyt</div>
@@ -65,22 +77,46 @@
             <v-col cols="12">
               <div class="caption">Zaplanowane wizyty</div>
               <div
-                v-if="selectedClient.plannedcount === 0 || selectedClient.plannedcount === undefined"
-              >Brak zaplanowanych wizyt</div>
+                v-if="
+                  selectedClient.plannedcount === 0 ||
+                    selectedClient.plannedcount === undefined
+                "
+              >
+                Brak zaplanowanych wizyt
+              </div>
               <v-row v-else>
-                <v-col cols="12" md="3" v-for="plvisit in selectedClient.plannedvisits" :key="plvisit.id">
+                <v-col
+                  cols="12"
+                  md="3"
+                  v-for="plvisit in plannedvisits"
+                  :key="plvisit.id"
+                >
                   <v-card>
                     <v-card-text>
-                      <div v-if="plvisit.confirmed" class="success--text subtitle-1">Potwierdzono</div>
-                      <div v-else class="error--text subtitle-1">Nie potwierdzono</div>
-                      <div class="text-h5 text--primary">{{plvisit.start.slice(0, 10)}}<br>{{plvisit.start.slice(10)}}</div>
+                      <div
+                        v-if="plvisit.confirmed"
+                        class="success--text subtitle-1"
+                      >
+                        Potwierdzono
+                      </div>
+                      <div v-else class="error--text subtitle-1">
+                        Nie potwierdzono
+                      </div>
+                      <div class="text-h5 text--primary">
+                        {{ plvisit.start.slice(0, 10) }}<br />{{
+                          plvisit.start.slice(10)
+                        }}
+                      </div>
                       <div class="text-h6 font-weight-regular">
-                        {{plvisit.name}}
+                        {{ plvisit.name }}
                         <br />
                       </div>
-                    </v-card-text>  
+                    </v-card-text>
                     <v-card-actions class="mt-n4">
-                      <DeleteEvent @eventRemoved="eventDeleted($event)" :eventRef="plvisit.eventRef"/>
+                      <DeleteEvent
+                        @eventRemoved="eventDeleted($event)"
+                        :eventRef="plvisit.eventRef"
+                      />
                     </v-card-actions>
                   </v-card>
                 </v-col>
@@ -93,15 +129,28 @@
                   <v-expansion-panel-content>
                     <v-list>
                       <v-list-item-group>
-                        <Visit :event="pastevent" v-for="pastevent in selectedClient.pastvisits" :key="pastevent.id" />
+                        <Visit
+                          :event="pastevent"
+                          v-for="pastevent in pastvisits"
+                          :key="pastevent.id"
+                        />
                       </v-list-item-group>
                     </v-list>
                   </v-expansion-panel-content>
                 </v-expansion-panel>
               </v-expansion-panels>
               <div class="mt-4">
-                <v-btn v-if="selectedClient.id !== undefined" text color="error" @click="deleteClient(selectedClient.id)">Usuń</v-btn>
-                <EditClient v-if="selectedClient.id !== undefined" :client="selectedClient" />
+                <v-btn
+                  v-if="selectedClient.id !== undefined"
+                  text
+                  color="error"
+                  @click="deleteClient(selectedClient.id)"
+                  >Usuń</v-btn
+                >
+                <EditClient
+                  v-if="selectedClient.id !== undefined"
+                  :client="selectedClient"
+                />
               </div>
             </v-col>
           </v-row>
@@ -115,8 +164,8 @@
 import { mapGetters, mapActions } from "vuex";
 import AddClient from "@/components/AddClient";
 import EditClient from "@/components/EditClient";
-import DeleteEvent from '@/components/DeleteEvent';
-import Visit from '@/components/Visit';
+import DeleteEvent from "@/components/DeleteEvent";
+import Visit from "@/components/Visit";
 
 export default {
   name: "Clients",
@@ -142,9 +191,17 @@ export default {
   }),
   computed: {
     ...mapGetters(["getAllClients"]),
+    registeredText() {
+      return this.selectedClient.registered
+        ? this.selectedClient.registered
+            .toDate()
+            .toISOString()
+            .slice(0, 10)
+        : "Brak";
+    },
   },
   methods: {
-    ...mapActions(["fetchClients", "removeClient", 'removeEvent']),
+    ...mapActions(["removeClient", "removeEvent", "fetchClientVisits"]),
     searchSelect() {
       if (this.searchClientId !== undefined) {
         this.selectedClient = this.getAllClients.find((v) => {
@@ -153,16 +210,26 @@ export default {
       }
     },
     async deleteClient(id) {
-        await this.removeClient(id);
-        this.getAllClients.length > 0 ? this.selectedClient = this.getAllClients[0] : this.selectedClient = null;
+      await this.removeClient(id);
+      this.getAllClients.length > 0
+        ? (this.selectedClient = this.getAllClients[0])
+        : (this.selectedClient = null);
     },
     async eventDeleted(event) {
-      this.selectedClient.plannedvisits = this.selectedClient.plannedvisits.filter(v => v.eventRef.id !== event.id);
+      this.selectedClient.plannedvisits = this.selectedClient.plannedvisits.filter(
+        (v) => v.eventRef.id !== event.id
+      );
       this.selectedClient.plannedcount--;
     },
   },
-  mounted() {
-    this.fetchClients();
+  watch: {
+    async selectedClient(val) {
+      if (val) {
+        let visits = await this.fetchClientVisits(val.id);
+        this.plannedvisits = visits.plannedvisits;
+        this.pastvisits = visits.pastvisits;
+      }
+    },
   },
 };
 </script>

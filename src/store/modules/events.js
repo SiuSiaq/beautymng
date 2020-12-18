@@ -1,5 +1,4 @@
 import { db, increment, decrement, storageRef } from '@/main';
-import store from '../index';
 
 const state = {
     events: [],
@@ -28,18 +27,28 @@ const getters = {
 };
 
 const actions = {
-    async fetchEvents({ commit, dispatch }) {
+    async fetchEvents({ commit, dispatch, rootState }) {
         try {
-            let events = [];
-            const res = await store.state.login.userData.salon.ref.collection('events').get();
-            res.forEach(doc => {
-                let event = doc.data();
-                event.id = doc.id;
-                event.startDate = event.startDate.toDate(),
-                event.endDate = event.endDate.toDate(),
-                events.push(event);
-            });
-            commit('setEvents', events);
+            rootState.login.userData.salon.ref.collection('events')
+                .onSnapshot(querySnapshot => {
+                    querySnapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            commit('eventAdded', {
+                                ...change.doc.data(),
+                                id: change.doc.id,
+                            })
+                        }
+                        if (change.type === 'modified') {
+                            commit('eventUpdated', {
+                                ...change.doc.data(),
+                                id: change.doc.id,
+                            })
+                        }
+                        if (change.type === 'removed') {
+                            commit('eventRemoved', change.doc.id)
+                        }
+                    });
+                });
             return;
         } catch (error) {
             console.error(error);
@@ -193,37 +202,34 @@ const actions = {
             console.error(error)
         }
     },
-    async addEvent({ commit, dispatch }, newEvent) {
+    async addEvent({ dispatch, rootState }, newEvent) {
         try {
-            let res = await store.state.login.userData.salon.ref.collection('events').add(newEvent);
-            newEvent.id = res.id;
+            let ref = rootState.login.userData.salon.ref.collection('events').doc();
+            newEvent.id = ref.id;
             const newItem = {
                 name: newEvent.name,
-                eventRef: store.state.login.userData.salon.ref.collection('events').doc(newEvent.id),
+                eventRef: rootState.login.userData.salon.ref.collection('events').doc(newEvent.id),
                 confirmed: false,
                 start: newEvent.start,
                 startDate: newEvent.startDate,
                 clientName: newEvent.clientName,
                 doctor: newEvent.doctor,
             }
-            const doc1 = await newEvent.treatmentRef.get();
-            let newTreatment = doc1.data();
-            newTreatment.plannedvisits.push(newItem);
-
-            const doc2 = await newEvent.clientRef.get();
-            let newClient = doc2.data();
-            newClient.plannedvisits.push(newItem);
 
             const batch = db.batch();
 
+            batch.set(ref, newEvent);
+
+            batch.set(newEvent.treatmentRef.collection('plannedvisits').doc(newEvent.id), newItem);
+
             batch.update(newEvent.treatmentRef, {
                 plannedcount: increment,
-                plannedvisits: newTreatment.plannedvisits,
             });
+
+            batch.set(newEvent.clientRef.collection('plannedvisits').doc(newEvent.id), newItem);
 
             batch.update(newEvent.clientRef, {
                 plannedcount: increment,
-                plannedvisits: newClient.plannedvisits,
             });
 
             batch.update(newEvent.doctor.ref, {
@@ -231,7 +237,6 @@ const actions = {
             });
 
             await batch.commit();
-            commit('eventAdded', newEvent);
             dispatch('showAlert', {
                 text: 'Pomyślnie dodano wizytę',
                 success: true,
@@ -245,30 +250,19 @@ const actions = {
         }
         return;
     },
-    async removeEvent({ commit, dispatch }, event, client, treatment) {
+    async removeEvent({ dispatch, rootState }, event) {
         try {
             const batch = db.batch();
-            if (client === null || client === undefined) {
-                let clientDoc = await event.clientRef.get();
-                client = clientDoc.data();
-                client.id = clientDoc.id;
-            }
-            if (treatment === null || treatment === undefined) {
-                let treatmentDoc = await event.treatmentRef.get();
-                treatment = treatmentDoc.data();
-                treatment.id = treatmentDoc.id;
-            }
 
-            client.plannedvisits = client.plannedvisits.filter(v => v.eventRef.id !== event.id);
-            treatment.plannedvisits = treatment.plannedvisits.filter(v => v.eventRef.id !== event.id);
-
+            batch.delete(event.clientRef.collection('plannedvisits').doc(event.id));
+            
             batch.update(event.clientRef, {
-                plannedvisits: client.plannedvisits,
                 plannedcount: decrement,
             });
 
+            batch.delete(event.treatmentRef.collection('plannedvisits').doc(event.id));
+
             batch.update(event.treatmentRef, {
-                plannedvisits: treatment.plannedvisits,
                 plannedcount: decrement,
             });
 
@@ -276,10 +270,9 @@ const actions = {
                 plannedcount: decrement,
             });
 
-            batch.delete(store.state.login.userData.salon.ref.collection('events').doc(event.id));
+            batch.delete(rootState.login.userData.salon.ref.collection('events').doc(event.id));
 
             await batch.commit();
-            commit('eventRemoved', event.id);
             dispatch('showAlert', {
                 text: 'Pomyślnie usunięto wizytę',
                 success: true,
@@ -294,52 +287,26 @@ const actions = {
         }
         return;
     },
-    async editEvent({ commit, dispatch }, event) {
+    async editEvent({ dispatch, rootState }, event) {
         try {
             const batch = db.batch();
-            let
-                clientDoc = await event.clientRef.get(),
-                treatmentDoc = await event.treatmentRef.get();
-            let client = clientDoc.data();
-            client.id = clientDoc.id;
-            let treatment = treatmentDoc.data();
-            treatment.id = treatmentDoc.id;
 
-            client.plannedvisits = client.plannedvisits.map(obj => obj.eventRef.id === event.id ? {
-                name: obj.name,
-                eventRef: obj.eventRef,
-                confirmed: obj.confirmed,
-                clientName: obj.clientName,
+            batch.update(event.treatmentRef.collection('plannedvisits').doc(event.id), {
                 start: event.start,
-                startDate: event.startDate,
-                doctor: event.doctor,
-            } : obj);
-
-            treatment.plannedvisits = treatment.plannedvisits.map(obj => obj.eventRef.id === event.id ? {
-                name: obj.name,
-                eventRef: obj.eventRef,
-                confirmed: obj.confirmed,
-                clientName: obj.clientName,
-                start: event.start,
-                startDate: event.startDate,
-                doctor: event.doctor,
-            } : obj);
-
-            batch.update(event.clientRef, {
-                plannedvisits: client.plannedvisits,
+                end: event.end,
             });
 
-            batch.update(event.treatmentRef, {
-                plannedvisits: treatment.plannedvisits,
+            batch.update(event.clientRef.collection('plannedvisits').doc(event.id), {
+                start: event.start,
+                end: event.end,
             });
 
-            batch.update(store.state.login.userData.salon.ref.collection('events').doc(event.id), {
+            batch.update(rootState.login.userData.salon.ref.collection('events').doc(event.id), {
                 start: event.start,
                 end: event.end,
             });
 
             await batch.commit();
-            commit('eventUpdated', event);
             dispatch('showAlert', {
                 text: 'Pomyślnie zaktualizowano wizytę',
                 success: true,
@@ -354,35 +321,20 @@ const actions = {
         }
         return;
     },
-    async confirmEvent({ commit, dispatch }, event) {
+    async confirmEvent({ commit, dispatch, rootState }, event) {
         try {
             const batch = db.batch();
-            let
-                clientDoc = await event.clientRef.get(),
-                treatmentDoc = await event.treatmentRef.get();
-            let client = clientDoc.data();
-            client.id = clientDoc.id;
-            let treatment = treatmentDoc.data();
-            treatment.id = treatmentDoc.id;
 
-            client.plannedvisits.find(v => {
-                return v.start === event.start;
-            }).confirmed = true;
-
-            treatment.plannedvisits.find(v => {
-                return v.start === event.start;
-            }).confirmed = true;
-
-            batch.update(store.state.login.userData.salon.ref.collection('events').doc(event.id), {
+            batch.update(rootState.login.userData.salon.ref.collection('events').doc(event.id), {
                 confirmed: true,
             });
 
-            batch.update(event.clientRef, {
-                plannedvisits: client.plannedvisits,
+            batch.update(event.treatmentRef.collection('plannedvisits').doc(event.id), {
+                confirmed: true,
             });
 
-            batch.update(event.treatmentRef, {
-                plannedvisits: treatment.plannedvisits,
+            batch.update(event.clientRef.collection('plannedvisits').doc(event.id), {
+                confirmed: true,
             });
 
             await batch.commit();
@@ -411,20 +363,13 @@ const actions = {
         }
         return;
     },
-    async archiveEvent({ commit, dispatch }, event) {
+    async archiveEvent({ dispatch, rootState }, event) {
         try {
             const batch = db.batch();
-            let
-                clientDoc = await event.clientRef.get(),
-                treatmentDoc = await event.treatmentRef.get();
-            let client = clientDoc.data();
-            client.id = clientDoc.id;
-            let treatment = treatmentDoc.data();
-            treatment.id = treatmentDoc.id;
-            const salonId = store.state.login.userData.salon.ref.id;
+            const salonId = rootState.login.userData.salon.ref.id;
             let urls = [];
             let i;
-            for(i = 0; i < event.images.length; i++) {
+            for (i = 0; i < event.images.length; i++) {
                 let file = event.images[i];
                 let imageRef = storageRef.child(`${salonId}/${event.id}/${file.name}`);
                 await imageRef.put(file);
@@ -434,53 +379,63 @@ const actions = {
             event.imageUrls = urls;
             delete event.images;
 
-            const clientEvent = client.plannedvisits.find(v => v.eventRef.id === event.id);
-            clientEvent.imageUrls = urls;
-            clientEvent.rate = event.rate;
-            clientEvent.price = event.price;
-            clientEvent.additionalTreatments = event.additionalTreatments.map(v => v.name);
-            client.plannedvisits = client.plannedvisits.filter(v => v.eventRef.id !== event.id);
-            client.pastvisits.push(clientEvent);
-
-            const treatmentEvent = treatment.plannedvisits.find(v => v.eventRef.id === event.id);
-            treatmentEvent.imageUrls = urls;
-            treatmentEvent.rate = event.rate;
-            treatmentEvent.price = event.price;
-            treatmentEvent.additionalTreatments = event.additionalTreatments.map(v => v.name);
-            treatment.plannedvisits = treatment.plannedvisits.filter(v => v.eventRef.id !== event.id);
-            treatment.pastvisits.push(treatmentEvent);
-
-            batch.update(store.state.login.userData.salon.ref.collection('events').doc(event.id), {
+            batch.update(rootState.login.userData.salon.ref.collection('events').doc(event.id), {
                 archived: true,
                 additionalTreatments: event.additionalTreatments.map(v => v.name),
                 price: event.price,
             });
 
-            batch.update(event.clientRef, {
-                plannedvisits: client.plannedvisits,
-                pastvisits: client.pastvisits,
-                plannedcount: decrement,
-                visits: increment,
-            });
+            batch.delete(event.treatmentRef.collection('plannedvisits').doc(event.id))
+
+            batch.set(event.treatmentRef.collection('pastvisits').doc(event.id), {
+                name: event.name,
+                eventRef: rootState.login.userData.salon.ref.collection('events').doc(event.id),
+                confirmed: event.confirmed,
+                start: event.start,
+                startDate: event.startDate,
+                clientName: event.clientName,
+                doctor: event.doctor,
+                imageUrls: urls,
+                rate: event.rate,
+                price: event.price,
+                additionalTreatments: event.additionalTreatments.map(v => v.name),
+            })
 
             batch.update(event.treatmentRef, {
-                plannedvisits: treatment.plannedvisits,
-                pastvisits: treatment.pastvisits,
                 plannedcount: decrement,
                 visits: increment,
             });
 
-            batch.update(store.state.login.userData.salon.ref,{
+            batch.delete(event.clientRef.collection('plannedvisits').doc(event.id))
+
+            batch.set(event.clientRef.collection('pastvisits').doc(event.id), {
+                name: event.name,
+                eventRef: rootState.login.userData.salon.ref.collection('events').doc(event.id),
+                confirmed: event.confirmed,
+                start: event.start,
+                startDate: event.startDate,
+                clientName: event.clientName,
+                doctor: event.doctor,
+                imageUrls: urls,
+                rate: event.rate,
+                price: event.price,
+                additionalTreatments: event.additionalTreatments.map(v => v.name),
+            })
+
+            batch.update(event.clientRef, {
+                plannedcount: decrement,
                 visits: increment,
             });
 
-            batch.update(event.doctor.ref,{
+            batch.update(rootState.login.userData.salon.ref, {
+                visits: increment,
+            });
+
+            batch.update(event.doctor.ref, {
                 visits: increment,
             });
 
             await batch.commit();
-
-            commit('eventUpdated', event);
 
             dispatch('showAlert', {
                 text: 'Zakończono zabieg',
@@ -512,7 +467,7 @@ const mutations = {
     setTodayLeftEvents: (state, data) => state.todayLeftEvents = data,
     setSelectedEvent: (state, data) => state.selectedEvent = data,
     setCurrentEvent: (state, data) => state.currentEvent = data,
-    eventAdded: (state, newEvent) => state.events.unshift(newEvent),
+    eventAdded: (state, newEvent) => state.events.push(newEvent),
     eventRemoved: (state, id) => state.events = state.events.filter(v => v.id !== id),
     eventUpdated: (state, event) => state.events = state.events.map(obj => obj.id === event.id ? event : obj),
     eventTodayConfirmed: (state, id) => state.todayNotConfirmedEvents = state.todayNotConfirmedEvents.filter(v => v.id !== id),

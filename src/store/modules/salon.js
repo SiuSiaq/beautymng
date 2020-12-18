@@ -1,4 +1,3 @@
-import store from '../index'
 import { db } from '@/main' 
 const state = {
     salon: {
@@ -19,26 +18,26 @@ const getters = {
 }
 
 const actions = {
-    async fetchSalon({ commit }) {
-        const doc = await store.state.login.userData.salon.ref.get();
+    async fetchSalon({ commit, rootState }) {
+        const doc = await rootState.login.userData.salon.ref.get();
         let salon = doc.data();
         salon.id = doc.id;
         // ? CHANGE FOR ARRAY CHECK ?
         if(!state.isAdmin) {
-            if(salon.leader.ref.id === store.state.login.user.uid) commit('setAdmin', true);
+            if(salon.leader.ref.id === rootState.login.user.uid) commit('setAdmin', true);
         }
         commit('setSalon', salon);
     },
-    async setDoctor({ dispatch }, obj) {
+    async setDoctor({ dispatch, rootState }, obj) {
         try {
             await obj.ref.update({
                 doctor: obj.doctor,
             });
-            let users = store.state.salon.salon.users;
+            let users = rootState.salon.salon.users;
             users.forEach(user => {
                 if(user.ref.id === obj.ref.id) user.doctor = obj.doctor;
             });
-            await store.state.login.userData.salon.ref.update({
+            await rootState.login.userData.salon.ref.update({
                 users: users,
             })
             dispatch('fetchSalon');

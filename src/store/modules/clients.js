@@ -1,5 +1,3 @@
-import store from '../index';
-
 const state = {
     clients: [],
 };
@@ -9,29 +7,31 @@ const getters = {
 };
 
 const actions = {
-    async fetchClients({ commit, dispatch }) {
-        let clients = [];
-        store.state.login.userData.salon.ref.collection('clients').get()
-            .then(res => {
-                res.forEach(doc => {
-                    let client = doc.data();
-                    client.id = doc.id;
-                    clients.push(client);
-                });
-                commit('setClients', clients);
-            }).catch((err) => {
-                console.error(err.error);
-                dispatch('showAlert', {
-                    text: 'Nie udało się pobrać bazy danych klientów',
-                    success: false,
+    async fetchClients({ commit, rootState }) {
+        rootState.login.userData.salon.ref.collection('clients')
+            .onSnapshot(querySnapshot => {
+                querySnapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        commit('clientAdded', {
+                            ...change.doc.data(),
+                            id: change.doc.id,
+                        })
+                    }
+                    if (change.type === 'modified') {
+                        commit('clientUpdated', {
+                            ...change.doc.data(),
+                            id: change.doc.id,
+                        })
+                    }
+                    if (change.type === 'removed') {
+                        commit('clientRemoved', change.doc.id)
+                    }
                 });
             });
     },
-    async addClient({ commit, dispatch }, newClient) {
+    async addClient({ dispatch, rootState }, newClient) {
         try {
-            let res = await store.state.login.userData.salon.ref.collection("clients").add(newClient);
-            newClient.id = res.id;
-            commit('clientAdded', newClient);
+            await rootState.login.userData.salon.ref.collection("clients").add(newClient);
             dispatch('showAlert', {
                 text: 'Pomyślnie dodano klienta',
                 success: true,
@@ -45,10 +45,9 @@ const actions = {
         }
         return;
     },
-    async removeClient({ commit, dispatch }, id) {
+    async removeClient({ dispatch, rootState }, id) {
         try {
-            await store.state.login.userData.salon.ref.collection('clients').doc(id).delete();
-            commit('clientRemoved', id);
+            await rootState.login.userData.salon.ref.collection('clients').doc(id).delete();
             dispatch('showAlert', {
                 text: 'Pomyślnie usunięto klienta',
                 success: true,
@@ -62,11 +61,9 @@ const actions = {
         }
         return;
     },
-    async updateClient({ commit, dispatch }, updatedClient) {
+    async updateClient({ dispatch, rootState }, updatedClient) {
         try {
-            await store.state.login.userData.salon.ref.collection('clients').doc(updatedClient.id).set(updatedClient);
-            let result = state.clients.map(obj => obj.id === updatedClient.id ? updatedClient : obj);
-            commit('setClients', result);
+            await rootState.login.userData.salon.ref.collection('clients').doc(updatedClient.id).set(updatedClient);
             dispatch('showAlert', {
                 text: 'Pomyślnie zaktualizowano klienta',
                 success: true,
@@ -79,13 +76,34 @@ const actions = {
             });
         }
         return;
-    }
+    },
+    async fetchClientVisits({ rootState }, id) {
+        let plannedvisits = [], pastvisits = [];
+        const resPlanned = await rootState.login.userData.salon.ref.collection('clients').doc(id).collection('plannedvisits').get();
+        resPlanned.forEach(doc => {
+            plannedvisits.push({
+                ...doc.data(),
+                id: doc.id,
+            })
+        })
+
+        const resPast = await rootState.login.userData.salon.ref.collection('clients').doc(id).collection('pastvisits').get();
+        resPast.forEach(doc => {
+            pastvisits.push({
+                ...doc.data(),
+                id: doc.id,
+            })
+        })
+
+        return { plannedvisits, pastvisits }
+    },
 };
 
 const mutations = {
     setClients: (state, data) => state.clients = data,
     clientAdded: (state, newClient) => state.clients.unshift(newClient),
     clientRemoved: (state, id) => state.clients = state.clients.filter(v => v.id !== id),
+    clientUpdated: (state, data) => state.clients = state.clients.map(obj => obj.id === data.id ? data : obj),
 };
 
 export default {

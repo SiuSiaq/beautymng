@@ -195,14 +195,13 @@ export default {
     deleteLoader: false,
   }),
   mounted() {
-    this.fetchEvents();
     this.$refs.calendar.checkChange();
     this.ready = true;
     this.scrollToTime();
     this.updateTime();
   },
   methods: {
-    ...mapActions(["fetchEvents", "removeEvent", "selectEvent"]),
+    ...mapActions(["removeEvent", "selectEvent"]),
     viewDay({ date }) {
       this.focus = date;
       this.type = "day";

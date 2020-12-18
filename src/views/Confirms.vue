@@ -44,13 +44,11 @@ export default {
   },
   methods: {
     ...mapActions([
-      "fetchEvents",
       "tomorrowNotConfirmedEvents",
       "todayNotConfirmedEvents",
       'dayAfterNotConfirmedEvents'
     ]),
     async getData() {
-      await this.fetchEvents();
       this.tomorrowNotConfirmedEvents();
       this.todayNotConfirmedEvents();
       this.dayAfterNotConfirmedEvents();

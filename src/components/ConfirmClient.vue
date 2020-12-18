@@ -33,13 +33,12 @@ export default {
     loader: false,
   }),
   methods: {
-    ...mapActions(['confirmEvent', 'fetchEvents', 'todayEvents']),
+    ...mapActions(['confirmEvent', 'todayEvents']),
     async confirmClick() {
       this.loader = true;
       await this.confirmEvent(this.event);
       this.loader = false;
       this.dialog = false;
-      await this.fetchEvents();
       this.todayEvents();
     }
   }

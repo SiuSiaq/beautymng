@@ -1,9 +1,17 @@
 <template>
   <v-dialog v-model="dialog" max-width="400">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn fixed bottom right fab color="secondary" v-bind="attrs" v-on="on">
-        <v-icon large>mdi-plus-circle</v-icon>
-      </v-btn>
+        <v-btn
+          fixed
+          bottom
+          right
+          fab
+          color="secondary"
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-icon large>mdi-plus-circle</v-icon>
+        </v-btn>
     </template>
 
     <v-card>
@@ -33,16 +41,33 @@
           required
         ></v-text-field>
 
-        <v-text-field v-model="clientEmail" :rules="emailRules" label="Email" required></v-text-field>
+        <v-text-field
+          v-model="clientEmail"
+          :rules="emailRules"
+          label="Email"
+          required
+        ></v-text-field>
 
-        <v-text-field v-model="clientPhone" :rules="phoneRules" label="Telefon" required></v-text-field>
+        <v-text-field
+          v-model="clientPhone"
+          :rules="phoneRules"
+          label="Telefon"
+          required
+        ></v-text-field>
       </v-form>
 
       <v-card-actions>
         <v-btn @click="dialog = false" text>Anuluj</v-btn>
         <v-btn @click="reset" text>resetuj</v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="primary" text :loading="loader" :disabled="!valid" @click="submit">Dodaj</v-btn>
+        <v-btn
+          color="primary"
+          text
+          :loading="loader"
+          :disabled="!valid"
+          @click="submit"
+          >Dodaj</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -93,11 +118,9 @@ export default {
         fullname: `${this.clientName} ${this.clientSurname}`,
         email: this.clientEmail,
         phone: this.clientPhone,
-        registered: new Date().toISOString().slice(0, 10),
+        registered: new Date(),
         visits: 0,
         plannedcount: 0,
-        plannedvisits: [],
-        pastvisits: [],
         color: this.getRandomColor(),
       };
 
@@ -106,7 +129,7 @@ export default {
       this.loader = false;
       this.dialog = false;
       this.reset();
-      this.$emit('clientAdded');
+      this.$emit("clientAdded");
     },
     reset() {
       this.$refs.form.reset();

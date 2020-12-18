@@ -154,16 +154,12 @@ export default {
     EventSummary,
   },
   mounted() {
-    this.getData();
     this.ready = true;
     this.scrollToTime();
     this.updateTime();
   },
   methods: {
-    ...mapActions(["fetchEvents", "archiveEvent"]),
-    async getData() {
-      await this.fetchEvents();
-    },
+    ...mapActions(["archiveEvent"]),
     getEventColor(event) {
       return !event.archived ? event.color : "#969696";
     },

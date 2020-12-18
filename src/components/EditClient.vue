@@ -92,8 +92,6 @@ export default {
         phone: this.client.phone,
         registered: this.client.registered,
         plannedcount: this.client.plannedcount,
-        plannedvisits: this.client.plannedvisits,
-        pastvisits: this.client.pastvisits,
         visits: this.client.visits,
         color: this.client.color,
         fullname: `${this.client.name} ${this.client.surname}`,

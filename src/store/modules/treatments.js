@@ -1,5 +1,3 @@
-import store from '../index';
-
 const state = {
     treatments: [],
 };
@@ -9,29 +7,31 @@ const getters = {
 };
 
 const actions = {
-    async fetchTreatments({ commit, dispatch }) {
-        let treatments = [];
-        store.state.login.userData.salon.ref.collection('treatments').get()
-            .then(res => {
-                res.forEach(doc => {
-                    let treatment = doc.data();
-                    treatment.id = doc.id;
-                    treatments.push(treatment);
-                });
-                commit('setTreatments', treatments);
-            }).catch((err) => {
-                console.error(err);
-                dispatch('showAlert', {
-                    text: 'Nie udało się zaktualizować bazy danych zabiegów',
-                    success: false,
+    async fetchTreatments({ commit, rootState }) {
+        rootState.login.userData.salon.ref.collection('treatments')
+            .onSnapshot(querySnapshot => {
+                querySnapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        commit('treatmentAdded', {
+                            ...change.doc.data(),
+                            id: change.doc.id,
+                        })
+                    }
+                    if (change.type === 'modified') {
+                        commit('treatmentUpdated', {
+                            ...change.doc.data(),
+                            id: change.doc.id,
+                        })
+                    }
+                    if (change.type === 'removed') {
+                        commit('treatmentRemoved', change.doc.id)
+                    }
                 });
             });
     },
-    async addTreatment({ commit, dispatch }, newTreatment) {
+    async addTreatment({ dispatch, rootState }, newTreatment) {
         try {
-            const res = await store.state.login.userData.salon.ref.collection('treatments').add(newTreatment);
-            newTreatment.id = res.id;
-            commit('treatmentAdded', newTreatment);
+            await rootState.login.userData.salon.ref.collection('treatments').add(newTreatment);
             dispatch('showAlert', {
                 text: 'Pomyślnie dodano zabieg',
                 success: true,
@@ -45,10 +45,9 @@ const actions = {
         }
         return;
     },
-    async removeTreatment({ commit, dispatch }, id) {
+    async removeTreatment({ dispatch, rootState }, id) {
         try {
-            await store.state.login.userData.salon.ref.collection('treatments').doc(id).delete();
-            commit('treatmentRemoved', id);
+            await rootState.login.userData.salon.ref.collection('treatments').doc(id).delete();
             dispatch('showAlert', {
                 text: 'Pomyślnie usunięto zabieg',
                 success: true,
@@ -62,13 +61,11 @@ const actions = {
         }
         return;
     },
-    async updateTreatment({ commit, dispatch }, updatedTreatment) {
+    async updateTreatment({ dispatch, rootState }, updatedTreatment) {
         try {
-            let ref = store.state.login.userData.salon.ref.collection('treatments').doc(updatedTreatment.id);
+            let ref = rootState.login.userData.salon.ref.collection('treatments').doc(updatedTreatment.id);
             delete updatedTreatment.id;
             await ref.set(updatedTreatment);
-            let result = state.treatments.map(obj => obj.id === updatedTreatment.id ? updatedTreatment : obj);
-            commit('setTreatments', result);
             dispatch('showAlert', {
                 text: 'Pomyślnie zaktualizowano zabieg',
                 success: true,
@@ -81,13 +78,34 @@ const actions = {
             });
         }
         return;
-    }
+    },
+    async fetchTreatmentVisits({ rootState }, id) {
+        let plannedvisits = [], pastvisits = [];
+        const resPlanned = await rootState.login.userData.salon.ref.collection('treatments').doc(id).collection('plannedvisits').get();
+        resPlanned.forEach(doc => {
+            plannedvisits.push({
+                ...doc.data(),
+                id: doc.id,
+            })
+        })
+
+        const resPast = await rootState.login.userData.salon.ref.collection('treatments').doc(id).collection('pastvisits').get();
+        resPast.forEach(doc => {
+            pastvisits.push({
+                ...doc.data(),
+                id: doc.id,
+            })
+        })
+
+        return { plannedvisits, pastvisits }
+    },
 };
 
 const mutations = {
     setTreatments: (state, data) => state.treatments = data,
     treatmentAdded: (state, newTreatment) => state.treatments.unshift(newTreatment),
     treatmentRemoved: (state, id) => state.treatments = state.treatments.filter(v => v.id !== id),
+    treatmentUpdated: (state, data) => state.treatments = state.treatments.map(obj => obj.id === data.id ? data : obj),
 };
 
 export default {

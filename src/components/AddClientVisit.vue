@@ -215,7 +215,7 @@ export default {
         fullname: `${this.clientName} ${this.clientSurname}`,
         email: this.clientEmail,
         phone: this.clientPhone,
-        registered: new Date().toISOString().slice(0, 10),
+        registered: new Date(),
         visits: 0,
         plannedcount: 0,
         plannedvisits: [],

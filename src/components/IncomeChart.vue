@@ -124,9 +124,9 @@ export default {
     });
 
     this.getAllEvents.forEach((event) => {
-      if (!event.startDate.getFullYear() === now.getFullYear()) return;
-      let month = event.startDate.getMonth();
-      let day = event.startDate.getDate();
+      if (!event.startDate.toDate().getFullYear() === now.getFullYear()) return;
+      let month = event.startDate.toDate().getMonth();
+      let day = event.startDate.toDate().getDate();
       this.months[month].value += event.price;
       this.months[month].days[day - 1].value += event.price;
     });

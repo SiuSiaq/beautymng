@@ -1,9 +1,17 @@
 <template>
   <v-dialog v-model="dialog" max-width="400">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn fixed bottom right fab color="secondary" v-bind="attrs" v-on="on">
-        <v-icon large>mdi-plus-circle</v-icon>
-      </v-btn>
+        <v-btn
+          fixed
+          bottom
+          right
+          fab
+          color="secondary"
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-icon large>mdi-plus-circle</v-icon>
+        </v-btn>
     </template>
 
     <v-card>
@@ -24,7 +32,7 @@
           :items="getAllTreatments"
           item-text="name"
           item-value="id"
-          :rules="[v => !!v || 'Zabieg jest wymagany']"
+          :rules="[(v) => !!v || 'Zabieg jest wymagany']"
           label="Zabieg"
           required
         ></v-autocomplete>
@@ -36,7 +44,7 @@
           :items="getAllClients"
           item-text="fullname"
           item-value="id"
-          :rules="[v => !!v || 'Klient jest wymagany']"
+          :rules="[(v) => !!v || 'Klient jest wymagany']"
           label="Klient"
           required
         ></v-autocomplete>
@@ -48,7 +56,7 @@
           :items="getSalon.users"
           item-text="fullname"
           item-value="ref.id"
-          :rules="[v => !!v || 'Wykonawca jest wymagany']"
+          :rules="[(v) => !!v || 'Wykonawca jest wymagany']"
           label="Wykonawca zabiegu"
           required
         ></v-autocomplete>
@@ -72,14 +80,27 @@
               v-on="on"
             ></v-text-field>
           </template>
-          <v-date-picker v-model="date" no-title @input="menu1 = false"></v-date-picker>
+          <v-date-picker
+            v-model="date"
+            no-title
+            @input="menu1 = false"
+          ></v-date-picker>
         </v-menu>
         <v-row>
           <v-col cols="6">
-            <v-select required :items="hours" label="Godzina" v-model="timeHour"></v-select>
+            <v-select
+              required
+              :items="hours"
+              label="Godzina"
+              v-model="timeHour"
+            ></v-select>
           </v-col>
           <v-col cols="6">
-            <v-select :items="minutes" label="Minuty" v-model="timeMinute"></v-select>
+            <v-select
+              :items="minutes"
+              label="Minuty"
+              v-model="timeMinute"
+            ></v-select>
           </v-col>
         </v-row>
       </v-form>
@@ -88,7 +109,14 @@
         <v-btn @click="dialog = false" text>anuluj</v-btn>
         <v-btn @click="reset" text>resetuj</v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="primary" text :loading="loader" :disabled="!valid" @click="submit">dodaj</v-btn>
+        <v-btn
+          color="primary"
+          text
+          :loading="loader"
+          :disabled="!valid"
+          @click="submit"
+          >dodaj</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -114,31 +142,13 @@ export default {
     selectedDoctor: null,
     selectedDate: null,
     doctor: null,
-    hours: [
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      20,
-      21,
-      22,
-      23
-    ],
+    hours: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
     minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
     timeHour: null,
     timeMinute: null,
   }),
   methods: {
-    ...mapActions(["addEvent", "fetchClients", "fetchTreatments"]),
+    ...mapActions(["addEvent"]),
     async submit() {
       if (!this.$refs.form.validate() || !this.timeHour) return;
       if (!this.timeMinute) this.timeMinute = 0;
@@ -238,16 +248,12 @@ export default {
       return cats;
     },
   },
-  mounted() {
-    this.fetchClients();
-    this.fetchTreatments();
-  },
   computed: {
     ...mapGetters([
       "getAllClients",
       "getAllTreatments",
       "getUserData",
-      'getSalon',
+      "getSalon",
     ]),
     computedDateFormatted: {
       get() {

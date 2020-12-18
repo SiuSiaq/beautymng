@@ -19,13 +19,12 @@ export default {
       loader: false,
   }),
   methods: {
-    ...mapActions(['confirmEvent', 'fetchEvents', 'todayEvents']),
+    ...mapActions(['confirmEvent', 'todayEvents']),
     async confirmClick(event) {
         this.loader = true;
         await this.confirmEvent(event);
         this.loader = false;
         if(this.today) {
-          await this.fetchEvents();
           this.todayEvents();
         }
     },
