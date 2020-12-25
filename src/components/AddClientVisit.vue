@@ -128,7 +128,7 @@
                 </template>
                 <v-date-picker
                   locale="pl-PL"
-                  v-model="date"
+                  v-model="dateDisplay"
                   no-title
                   @input="menu1 = false"
                 ></v-date-picker>
@@ -191,7 +191,8 @@ export default {
       (v) => !!v || "Numer telefonu jest wymagany",
       (v) => /^\d{9}$/.test(v) || "Niepoprawny numer telefonu",
     ],
-    date: new Date().toISOString().substr(0, 10),
+    date: new Date(),
+    dateDisplay: new Date().toISOString().slice(0, 10),
     menu1: false,
     selectedTreatmentId: null,
     selectedTreatment: null,
@@ -345,6 +346,12 @@ export default {
         this.date = val;
       },
     },
+  },
+  watch: {
+    dateDisplay(val) {
+      this.date = new Date(Date.parse(val))
+      console.log(this.date)
+    }
   },
 };
 </script>

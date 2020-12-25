@@ -59,7 +59,6 @@
           transition="scale-transition"
           offset-y
           max-width="290px"
-          min-width="290px"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
@@ -75,7 +74,7 @@
           </template>
           <v-date-picker
             locale="pl-PL"
-            v-model="date"
+            v-model="dateDisplay"
             no-title
             @input="menu1 = false"
           ></v-date-picker>
@@ -123,6 +122,7 @@ export default {
   name: "AddEvent",
   data: () => ({
     date: new Date(),
+    dateDisplay: new Date().toISOString().slice(0, 10),
     menu1: false,
     loader: false,
     dialog: false,
@@ -160,7 +160,7 @@ export default {
       let startDate = new Date(this.date.getTime());
       startDate.setHours(this.timeHour);
       startDate.setMinutes(this.timeMinute);
-      startDate.setSeconds(0)
+      startDate.setSeconds(0);
       let endDate = new Date();
       endDate.setTime(
         startDate.getTime() +
@@ -206,7 +206,8 @@ export default {
     },
     reset() {
       this.$refs.form.reset();
-      this.date = new Date().toISOString().substr(0, 10);
+      this.date = new Date();
+      this.dateDisplay = new Date().toISOString().slice(0, 10);
     },
     treatmentSelected() {
       this.selectedTreatment = this.getAllTreatments.find((v) => {
@@ -254,6 +255,11 @@ export default {
       set(val) {
         this.date = val;
       },
+    },
+  },
+  watch: {
+    dateDisplay(val) {
+      this.date = new Date(Date.parse(val))
     },
   },
 };
