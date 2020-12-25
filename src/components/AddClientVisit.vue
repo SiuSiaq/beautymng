@@ -127,6 +127,7 @@
                   ></v-text-field>
                 </template>
                 <v-date-picker
+                  locale="pl-PL"
                   v-model="date"
                   no-title
                   @input="menu1 = false"
@@ -150,7 +151,9 @@
                 </v-col>
               </v-row>
             </v-form>
-            <v-btn color="primary" :loading="eventLoader" @click="eventSubmit">Zapisz</v-btn>
+            <v-btn color="primary" :loading="eventLoader" @click="eventSubmit"
+              >Zapisz</v-btn
+            >
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
@@ -161,7 +164,7 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 export default {
-  data: (vm) => ({
+  data: () => ({
     dialog: false,
     el: 1,
     clientLoader: false,
@@ -189,7 +192,6 @@ export default {
       (v) => /^\d{9}$/.test(v) || "Niepoprawny numer telefonu",
     ],
     date: new Date().toISOString().substr(0, 10),
-    dateFormatted: vm.formatDate(new Date().toISOString().substr(0, 10)),
     menu1: false,
     selectedTreatmentId: null,
     selectedTreatment: null,
@@ -243,12 +245,11 @@ export default {
       this.timeMinute < 10
         ? (finalMinute = `0${this.timeMinute}`)
         : (finalMinute = `${this.timeMinute}`);
-      const startDate = new Date(
-        `${this.computedDateFormatted} ${finalHour}:${finalMinute}`
-      );
-      let endDate = new Date(
-        `${this.computedDateFormatted} ${finalHour}:${finalMinute}`
-      );
+      let startDate = new Date(this.date.getTime());
+      startDate.setHours(this.timeHour);
+      startDate.setMinutes(this.timeMinute);
+      startDate.setSeconds(0);
+      let endDate = new Date();
       endDate.setTime(
         startDate.getTime() +
           treatment.hours * 60 * 60 * 1000 +

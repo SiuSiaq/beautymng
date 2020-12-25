@@ -64,17 +64,17 @@
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
               required
-              v-model="date"
+              v-model="computedDateFormatted"
               label="Data zabiegu"
               prepend-icon="mdi-calendar"
               readonly
               v-bind="attrs"
               v-on="on"
-              :rules="[
-                (v) => !!v || 'Data zabiegu jest wymagana']"
+              :rules="[(v) => !!v || 'Data zabiegu jest wymagana']"
             ></v-text-field>
           </template>
           <v-date-picker
+            locale="pl-PL"
             v-model="date"
             no-title
             @input="menu1 = false"
@@ -122,7 +122,7 @@ import { mapActions, mapGetters } from "vuex";
 export default {
   name: "AddEvent",
   data: () => ({
-    date: new Date().toISOString().substr(0, 10),
+    date: new Date(),
     menu1: false,
     loader: false,
     dialog: false,
@@ -137,8 +137,8 @@ export default {
     doctor: null,
     hours: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
     minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
-    timeHour: null,
-    timeMinute: null,
+    timeHour: new Date().getHours(),
+    timeMinute: 0,
   }),
   methods: {
     ...mapActions(["addEvent"]),
@@ -157,12 +157,11 @@ export default {
       this.timeMinute < 10
         ? (finalMinute = `0${this.timeMinute}`)
         : (finalMinute = `${this.timeMinute}`);
-      const startDate = new Date(
-        `${this.computedDateFormatted} ${finalHour}:${finalMinute}`
-      );
-      let endDate = new Date(
-        `${this.computedDateFormatted} ${finalHour}:${finalMinute}`
-      );
+      let startDate = new Date(this.date.getTime());
+      startDate.setHours(this.timeHour);
+      startDate.setMinutes(this.timeMinute);
+      startDate.setSeconds(0)
+      let endDate = new Date();
       endDate.setTime(
         startDate.getTime() +
           treatment.hours * 60 * 60 * 1000 +
@@ -227,10 +226,10 @@ export default {
     formatDate(date) {
       if (!date) return null;
 
-      const year = date.slice(0, 4),
-        month = date.slice(5, 7),
-        day = date.slice(8, 10);
-      return `${year}-${month}-${day}`;
+      const year = date.getFullYear(),
+        month = String(date.getDate()).padStart(2, "0"),
+        day = String(date.getMonth() + 1).padStart(2, "0");
+      return `${day}-${month}-${year}`;
     },
     doctors() {
       let cats = [];
