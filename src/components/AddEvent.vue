@@ -1,17 +1,9 @@
 <template>
   <v-dialog v-model="dialog" max-width="400">
     <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          fixed
-          bottom
-          right
-          fab
-          color="secondary"
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-icon large>mdi-plus-circle</v-icon>
-        </v-btn>
+      <v-btn fixed bottom right fab color="secondary" v-bind="attrs" v-on="on">
+        <v-icon large>mdi-plus-circle</v-icon>
+      </v-btn>
     </template>
 
     <v-card>
@@ -72,12 +64,14 @@
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
               required
-              v-model="computedDateFormatted"
+              v-model="date"
               label="Data zabiegu"
               prepend-icon="mdi-calendar"
               readonly
               v-bind="attrs"
               v-on="on"
+              :rules="[
+                (v) => !!v || 'Data zabiegu jest wymagana']"
             ></v-text-field>
           </template>
           <v-date-picker
@@ -127,9 +121,8 @@ import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "AddEvent",
-  data: (vm) => ({
+  data: () => ({
     date: new Date().toISOString().substr(0, 10),
-    dateFormatted: vm.formatDate(new Date().toISOString().substr(0, 10)),
     menu1: false,
     loader: false,
     dialog: false,

@@ -192,43 +192,48 @@ export default {
   computed: {
     ...mapGetters(["getAllClients"]),
     registeredText() {
-      return this.selectedClient.registered
-        ? this.selectedClient.registered
-            .toDate()
-            .toISOString()
-            .slice(0, 10)
-        : "Brak";
-    },
-  },
-  methods: {
-    ...mapActions(["removeClient", "removeEvent", "fetchClientVisits"]),
-    searchSelect() {
-      if (this.searchClientId !== undefined) {
-        this.selectedClient = this.getAllClients.find((v) => {
-          return v.id === this.searchClientId;
-        });
+      if (this.selectedClient.registered) {
+        const date = this.selectedClient.registered.toDate();
+        let hh = String(date.getHours()).padStart(2, "0");
+        let mn = String(date.getMinutes()).padStart(2, "0");
+        let dd = String(date.getDate()).padStart(2, "0");
+        let mm = String(date.getMonth() + 1).padStart(2, "0");
+        let yy = date.getFullYear();
+        return `${dd}-${mm}-${yy} ${hh}:${mn}`;
+      } else {
+        return "Brak";
       }
     },
-    async deleteClient(id) {
-      await this.removeClient(id);
-      this.getAllClients.length > 0
-        ? (this.selectedClient = this.getAllClients[0])
-        : (this.selectedClient = null);
+    methods: {
+      ...mapActions(["removeClient", "removeEvent", "fetchClientVisits"]),
+      searchSelect() {
+        if (this.searchClientId !== undefined) {
+          this.selectedClient = this.getAllClients.find((v) => {
+            return v.id === this.searchClientId;
+          });
+        }
+      },
+      async deleteClient(id) {
+        await this.removeClient(id);
+        this.getAllClients.length > 0
+          ? (this.selectedClient = this.getAllClients[0])
+          : (this.selectedClient = null);
+      },
+      async eventDeleted(event) {
+        this.selectedClient.plannedvisits = this.selectedClient.plannedvisits.filter(
+          (v) => v.eventRef.id !== event.id
+        );
+        this.selectedClient.plannedcount--;
+      },
     },
-    async eventDeleted(event) {
-      this.selectedClient.plannedvisits = this.selectedClient.plannedvisits.filter(
-        (v) => v.eventRef.id !== event.id
-      );
-      this.selectedClient.plannedcount--;
-    },
-  },
-  watch: {
-    async selectedClient(val) {
-      if (val) {
-        let visits = await this.fetchClientVisits(val.id);
-        this.plannedvisits = visits.plannedvisits;
-        this.pastvisits = visits.pastvisits;
-      }
+    watch: {
+      async selectedClient(val) {
+        if (val) {
+          let visits = await this.fetchClientVisits(val.id);
+          this.plannedvisits = visits.plannedvisits;
+          this.pastvisits = visits.pastvisits;
+        }
+      },
     },
   },
 };
