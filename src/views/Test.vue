@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="testHomeClass">
-    <div v-if="$vuetify.breakpoint.mobile" style="height: 90vh;" class="pb-10">
+    <div v-if="$vuetify.breakpoint.mobile" style="height: 100%;" class="pb-10">
       <v-tabs v-model="tab" background-color="transparent" color="basil" grow>
         <v-tab v-for="item in items" :key="item">
           {{ item }}

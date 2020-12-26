@@ -9,7 +9,7 @@
       </v-list-item>
     </template>
     <v-card>
-      <v-card-title>Szczegóły zabiegu</v-card-title>
+      <v-card-title>Szczegóły zabiegu<v-spacer></v-spacer><v-btn @click="dialog = false" icon color="black"><v-icon>mdi-close</v-icon></v-btn></v-card-title>
       <v-card-text class="black--text">
         <v-row>
           <v-col cols="12" md="6">

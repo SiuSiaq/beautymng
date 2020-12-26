@@ -204,36 +204,36 @@ export default {
         return "Brak";
       }
     },
-    methods: {
-      ...mapActions(["removeClient", "removeEvent", "fetchClientVisits"]),
-      searchSelect() {
-        if (this.searchClientId !== undefined) {
-          this.selectedClient = this.getAllClients.find((v) => {
-            return v.id === this.searchClientId;
-          });
-        }
-      },
-      async deleteClient(id) {
-        await this.removeClient(id);
-        this.getAllClients.length > 0
-          ? (this.selectedClient = this.getAllClients[0])
-          : (this.selectedClient = null);
-      },
-      async eventDeleted(event) {
-        this.selectedClient.plannedvisits = this.selectedClient.plannedvisits.filter(
-          (v) => v.eventRef.id !== event.id
-        );
-        this.selectedClient.plannedcount--;
-      },
+  },
+  methods: {
+    ...mapActions(["removeClient", "removeEvent", "fetchClientVisits"]),
+    searchSelect() {
+      if (this.searchClientId !== undefined) {
+        this.selectedClient = this.getAllClients.find((v) => {
+          return v.id === this.searchClientId;
+        });
+      }
     },
-    watch: {
-      async selectedClient(val) {
-        if (val) {
-          let visits = await this.fetchClientVisits(val.id);
-          this.plannedvisits = visits.plannedvisits;
-          this.pastvisits = visits.pastvisits;
-        }
-      },
+    async deleteClient(id) {
+      await this.removeClient(id);
+      this.getAllClients.length > 0
+        ? (this.selectedClient = this.getAllClients[0])
+        : (this.selectedClient = null);
+    },
+    async eventDeleted(event) {
+      this.selectedClient.plannedvisits = this.selectedClient.plannedvisits.filter(
+        (v) => v.eventRef.id !== event.id
+      );
+      this.selectedClient.plannedcount--;
+    },
+  },
+  watch: {
+    async selectedClient(val) {
+      if (val) {
+        let visits = await this.fetchClientVisits(val.id);
+        this.plannedvisits = visits.plannedvisits;
+        this.pastvisits = visits.pastvisits;
+      }
     },
   },
 };

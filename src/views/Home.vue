@@ -54,8 +54,8 @@ export default {
 
 <style scoped>
 .home {
-  height: 80vh;
-  background-image: linear-gradient(0, transparent 50%, #d984a3 50%);
+  height: 100%;
+  background: #d984a3; 
 }
 .homeCard {
   position: relative;

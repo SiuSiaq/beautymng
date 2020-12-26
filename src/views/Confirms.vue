@@ -1,31 +1,41 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="confirms">
     <v-row>
       <v-col cols="12" md="4" v-for="day in days" :key="day.name">
-        <v-card class="pb-4 px-3" :class="day.list.length > 0 ? '' : 'success'">
+        <v-card
+          elevation="12"
+          class="pb-4 px-3"
+        >
           <v-card-title
-            class="text-h4"
-            :class="day.list.length > 0 ? 'grey--text' : 'white--text'"
-          >{{day.name}}</v-card-title>
+            class="text-h4 grey--text text--darken-2"
+            >{{ day.name }}</v-card-title
+          >
           <v-list
             v-if="day.list.length > 0"
             :class="!$vuetify.breakpoint.mobile ? 'desktop' : ''"
             three-line
           >
             <v-list-item-group>
-              <ConfirmEventItem v-for="event in day.list" :key="event.id" :event="event" />
+              <ConfirmEventItem
+                v-for="event in day.list"
+                :key="event.id"
+                :event="event"
+              />
             </v-list-item-group>
           </v-list>
-          <div v-else class="d-flex">
-            <v-icon
-              :size="!$vuetify.breakpoint.mobile ? 50 : 30"
-              color="white"
-              class="fab mr-3"
-            >mdi-check-circle</v-icon>
-            <div
-              class="mt-md-2 text-subtitle-1 font-weight-regular text-md-h5 white--text"
-            >Wszystkie zabiegi potwierdzone</div>
-          </div>
+            <div v-else class="d-flex">
+              <v-icon
+                :size="!$vuetify.breakpoint.mobile ? 50 : 30"
+                color="success"
+                class="fab mr-3"
+                >mdi-check-circle</v-icon
+              >
+              <div
+                class="mt-md-2 text-subtitle-1 font-weight-regular text-md-h5 success--text"
+              >
+                Wszystkie zabiegi potwierdzone
+              </div>
+            </div>
         </v-card>
       </v-col>
     </v-row>
@@ -36,9 +46,7 @@
 import { mapGetters, mapActions } from "vuex";
 import ConfirmEventItem from "@/components/ConfirmEventItem";
 export default {
-  data: () => ({
-
-  }),
+  data: () => ({}),
   components: {
     ConfirmEventItem,
   },
@@ -46,7 +54,7 @@ export default {
     ...mapActions([
       "tomorrowNotConfirmedEvents",
       "todayNotConfirmedEvents",
-      'dayAfterNotConfirmedEvents'
+      "dayAfterNotConfirmedEvents",
     ]),
     async getData() {
       this.tomorrowNotConfirmedEvents();
@@ -58,20 +66,18 @@ export default {
     ...mapGetters([
       "getTodayNotConfirmedEvents",
       "getTomorrowNotConfirmedEvents",
-      'getDayAfterNotConfirmedEvents'
+      "getDayAfterNotConfirmedEvents",
     ]),
     days: {
       get() {
         return [
-                { name: "Dzisiaj", list: this.getTodayNotConfirmedEvents },
-                { name: "Jutro", list: this.getTomorrowNotConfirmedEvents },
-                { name: "Pojutrze", list: this.getDayAfterNotConfirmedEvents }
-              ];
+          { name: "Dzisiaj", list: this.getTodayNotConfirmedEvents },
+          { name: "Jutro", list: this.getTomorrowNotConfirmedEvents },
+          { name: "Pojutrze", list: this.getDayAfterNotConfirmedEvents },
+        ];
       },
-      set() {
-
-      }
-    }
+      set() {},
+    },
   },
   mounted() {
     this.getData();
@@ -84,5 +90,10 @@ export default {
   max-height: 80vh;
   overflow-y: scroll;
   scrollbar-width: none;
+}
+
+.confirms {
+  height: 100%;
+  background: #d984a3;
 }
 </style>

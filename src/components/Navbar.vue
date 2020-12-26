@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-app-bar flat dark color="primary">
+    <v-app-bar flat dark color="primary" app>
       <v-app-bar-nav-icon v-if="getIsLoggedIn" @click="draw = !draw"></v-app-bar-nav-icon>
 
       <v-toolbar-title class="text-uppercase font-weight-bold white--text">

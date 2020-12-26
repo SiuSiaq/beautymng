@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="app">
     <Navbar/>
     <v-alert transition="slide-y-transition" dense :type="getAlert.success ? 'success' : 'error'" rounded="0" v-model="getAlert.show">
       {{getAlert.text}}
@@ -29,3 +29,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+  .app {
+    height: 100vh;
+  }
+</style>
