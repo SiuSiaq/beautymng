@@ -10,6 +10,7 @@ import Login from '../views/Login'
 import Register from '../views/Register'
 import Settings from '../views/Settings'
 import Statistics from '../views/Statistics'
+import Test from '../views/Test'
 import { auth } from '@/main'
 
 Vue.use(VueRouter)
@@ -75,6 +76,14 @@ Vue.use(VueRouter)
     path: '/statistics',
     name: 'statistics',
     component: Statistics,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/test',
+    name: 'test',
+    component: Test,
     meta: {
       requiresAuth: true,
     },

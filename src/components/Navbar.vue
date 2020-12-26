@@ -77,6 +77,7 @@ export default {
     settings: '/settings',
     items: [
       { icon: "mdi-view-dashboard", text: "Home", route: "/" },
+      { icon: "mdi-test-tube", text: "Home", route: "/test" },
       { icon: "mdi-calendar-text", text: "Kalendarz", route: "/calendar" },
       { icon: "mdi-seal", text: "Dzisiaj", route: "/today" },
       { icon: "mdi-bell-check", text: "Do potwierdzenia", route: "/confirms" },

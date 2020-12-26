@@ -3,14 +3,18 @@
     <v-container fluid class="pa-0">
       <v-sheet height="64">
         <v-toolbar flat color="white">
-          <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">Dzisiaj</v-btn>
+          <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday"
+            >Dzisiaj</v-btn
+          >
           <v-btn fab text small color="grey darken-2" @click="prev">
             <v-icon small>mdi-chevron-left</v-icon>
           </v-btn>
           <v-btn fab text small color="grey darken-2" @click="next">
             <v-icon small>mdi-chevron-right</v-icon>
           </v-btn>
-          <v-toolbar-title v-if="$refs.calendar">{{ $refs.calendar.title }}</v-toolbar-title>
+          <v-toolbar-title v-if="$refs.calendar">{{
+            $refs.calendar.title
+          }}</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
       </v-sheet>
@@ -25,6 +29,7 @@
           :events="getAllEvents"
           :event-color="getEventColor"
           @click:event="showEvent"
+          locale="pl-PL"
         >
           <template #day-body="{ date, week }">
             <div
@@ -42,7 +47,7 @@
         >
           <v-card color="grey lighten-4" max-width="350" flat>
             <v-toolbar :color="selectedEvent.color" dark>
-              <v-toolbar-title>{{selectedEvent.name}}</v-toolbar-title>
+              <v-toolbar-title>{{ selectedEvent.name }}</v-toolbar-title>
             </v-toolbar>
             <v-expansion-panels>
               <v-expansion-panel>
@@ -66,13 +71,17 @@
                       <tr>
                         <td>Telefon</td>
                         <td>
-                          <a :href="`tel:${selectedClient.phone}`">{{ selectedClient.phone }}</a>
+                          <a :href="`tel:${selectedClient.phone}`">{{
+                            selectedClient.phone
+                          }}</a>
                         </td>
                       </tr>
                       <tr>
                         <td>Email</td>
                         <td>
-                          <a :href="`mailto:${selectedClient.email}`">{{ selectedClient.email }}</a>
+                          <a :href="`mailto:${selectedClient.email}`">{{
+                            selectedClient.email
+                          }}</a>
                         </td>
                       </tr>
                       <tr>
@@ -100,7 +109,10 @@
                       </tr>
                       <tr>
                         <td>Czas</td>
-                        <td>{{ selectedTreatment.hours }} godziny {{ selectedTreatment.minutes }} minuty</td>
+                        <td>
+                          {{ selectedTreatment.hours }} godziny
+                          {{ selectedTreatment.minutes }} minuty
+                        </td>
                       </tr>
                       <tr>
                         <td>Cena</td>
@@ -116,17 +128,41 @@
               </v-expansion-panel>
               <v-expansion-panel>
                 <v-expansion-panel-header disable-icon-rotate>
-                  Status:<span class="ml-1" :class="selectedEvent.confirmed ? 'success--text' : 'error--text'"> {{ selectedEvent.confirmed ? 'Potwierdzono' : 'Nie potwierdzono' }}</span>
+                  Status:<span
+                    class="ml-1"
+                    :class="
+                      selectedEvent.confirmed ? 'success--text' : 'error--text'
+                    "
+                  >
+                    {{
+                      selectedEvent.confirmed
+                        ? "Potwierdzono"
+                        : "Nie potwierdzono"
+                    }}</span
+                  >
                   <template v-slot:actions>
-                    <v-icon :color="selectedEvent.confirmed ? 'success' : 'error'">{{selectedEvent.confirmed ? 'mdi-check' : 'mdi-close-circle'}}</v-icon>
+                    <v-icon
+                      :color="selectedEvent.confirmed ? 'success' : 'error'"
+                      >{{
+                        selectedEvent.confirmed
+                          ? "mdi-check"
+                          : "mdi-close-circle"
+                      }}</v-icon
+                    >
                   </template>
                 </v-expansion-panel-header>
               </v-expansion-panel>
             </v-expansion-panels>
             <v-card-actions>
-              <v-btn text color="black" @click="selectedOpen = false">anuluj</v-btn>
+              <v-btn text color="black" @click="selectedOpen = false"
+                >anuluj</v-btn
+              >
               <v-spacer></v-spacer>
-              <EventSummary :event="selectedEvent" @archived="selectedOpen = false" v-if="!selectedEvent.archived"/>
+              <EventSummary
+                :event="selectedEvent"
+                @archived="selectedOpen = false"
+                v-if="!selectedEvent.archived"
+              />
             </v-card-actions>
           </v-card>
         </v-menu>
@@ -136,8 +172,8 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex"
-import EventSummary from '@/components/EventSummary'
+import { mapGetters, mapActions } from "vuex";
+import EventSummary from "@/components/EventSummary";
 export default {
   name: "Today",
   data: () => ({
@@ -212,7 +248,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["getAllEvents", 'getSalon']),
+    ...mapGetters(["getAllEvents", "getSalon"]),
     cal() {
       return this.ready ? this.$refs.calendar : null;
     },
@@ -222,7 +258,7 @@ export default {
     categories() {
       let cats = [];
       this.getSalon.users.forEach((user) => {
-        if(user.doctor) cats.push(`${user.name} ${user.surname}`)
+        if (user.doctor) cats.push(`${user.name} ${user.surname}`);
       });
       return cats;
     },
@@ -251,6 +287,3 @@ export default {
   }
 }
 </style>
-
-
-
