@@ -7,7 +7,7 @@
         </v-tab>
       </v-tabs>
 
-      <v-tabs-items v-model="tab">
+      <v-tabs-items v-model="tab" class="white">
         <v-tab-item>
           <v-card
             max-height="84vh"
