@@ -236,5 +236,11 @@ export default {
       }
     },
   },
+  mounted() {
+    if (this.getAllClients.length > 0) {
+      this.selectedClient = this.getAllClients[0]
+      this.searchClientId = this.getAllClients[0].id
+    }
+  },
 };
 </script>

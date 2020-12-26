@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="testHomeClass">
-    <div v-if="$vuetify.breakpoint.mobile" style="height: 100%;" class="pb-10">
-      <v-tabs v-model="tab" background-color="transparent" color="black" grow>
+  <v-container fluid class="testHomeClass" :class="$vuetify.breakpoint.mobile ? 'pa-0' : ''">
+    <div v-if="$vuetify.breakpoint.mobile" style="height: 100%; width: 100%">
+      <v-tabs v-model="tab" background-color="transparent" color="white" grow>
         <v-tab v-for="item in items" :key="item">
           {{ item }}
         </v-tab>
@@ -10,12 +10,9 @@
       <v-tabs-items v-model="tab">
         <v-tab-item>
           <v-card
-            max-height="84vh"
             v-if="getUserData.doctor"
-            elevation="12"
-            rounded="lg"
             class="pa-3"
-            ><v-sheet height="64">
+            ><v-sheet height="auto">
               <v-toolbar flat color="white">
                 <v-btn
                   outlined
@@ -36,7 +33,7 @@
                 <v-spacer></v-spacer>
               </v-toolbar>
             </v-sheet>
-            <v-sheet height="490">
+            <v-sheet height="77.3vh">
               <v-calendar
                 locale="pl-PL"
                 ref="calendar"
@@ -465,7 +462,7 @@ export default {
     selectedElement: null,
     selectedOpen: false,
     tab: null,
-    items: ["Dzisiaj", "Do potwierdzenia", "Produkty"],
+    items: ["Dzisiaj", "Klientki", "Produkty"],
   }),
   components: {
     EventSummary,
@@ -564,6 +561,7 @@ export default {
   background: #d984a3;
   height: 100%;
 }
+
 .v-current-time {
   height: 2px;
   background-color: #ea4335;

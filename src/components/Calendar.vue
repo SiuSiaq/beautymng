@@ -247,6 +247,7 @@ export default {
     this.ready = true;
     this.scrollToTime();
     this.updateTime();
+    this.$vuetify.breakpoint.mobile ? this.type = "4day" : this.type = "week";
   },
   methods: {
     ...mapActions(["removeEvent", "selectEvent"]),

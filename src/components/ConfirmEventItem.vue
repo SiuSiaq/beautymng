@@ -21,23 +21,29 @@
       </v-list-item>
     </template>
 
-    <v-card class="px-5 pb-2">
-      <v-card-title>Potwierdzanie wizyty</v-card-title>
-      <div class="caption">Telefon</div>
-      <div>
-        <a :href="`tel:${event.clientPhone}`">{{ event.clientPhone }}</a>
+    <v-card class="pb-2">
+      <v-card-title
+        >Potwierdzanie wizyty<v-spacer></v-spacer
+        ><v-btn @click="dialog = false" icon color="black"
+          ><v-icon>mdi-close</v-icon></v-btn
+        ></v-card-title
+      >
+      <div class="px-7">
+        <div class="caption">Telefon</div>
+        <div>
+          <a :href="`tel:${event.clientPhone}`">{{ event.clientPhone }}</a>
+        </div>
+        <div class="caption">Klient</div>
+        <div>{{ event.clientName }}</div>
+        <div class="caption">Termin</div>
+        <div>{{ formatedDate }}</div>
+        <div class="caption">Zabieg</div>
+        <div>{{ event.name }}</div>
       </div>
-      <div class="caption">Klient</div>
-      <div>{{ event.clientName }}</div>
-      <div class="caption">Termin</div>
-      <div>{{ formatedDate }}</div>
-      <div class="caption">Zabieg</div>
-      <div>{{ event.name }}</div>
 
       <v-card-actions>
-        <v-btn @click="dialog = false" text>anuluj</v-btn>
-        <v-spacer></v-spacer>
         <v-btn color="error" text>anuluj wizytę</v-btn>
+        <v-spacer></v-spacer>
         <v-btn color="success" text :loading="loader" @click="confirmClick"
           >potwierdź</v-btn
         >
@@ -47,7 +53,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions } from "vuex";
 export default {
   data: () => ({
     dialog: false,
@@ -55,8 +61,8 @@ export default {
   }),
   props: ["event"],
   methods: {
-      ...mapActions(['confirmEvent']),
-      async confirmClick() {
+    ...mapActions(["confirmEvent"]),
+    async confirmClick() {
       this.loader = true;
       await this.confirmEvent(this.event);
       this.loader = false;
@@ -64,15 +70,15 @@ export default {
     },
   },
   computed: {
-      formatedDate() {
-        const date = this.event.startDate.toDate()
-        let hh = String(date.getHours()).padStart(2, '0')
-        let mn = String(date.getMinutes()).padStart(2, '0')
-        let dd = String(date.getDate()).padStart(2, '0')
-        let mm = String(date.getMonth() + 1).padStart(2, '0')
-        let yy = date.getFullYear()
-        return `${dd}-${mm}-${yy} ${hh}:${mn}`
-      },
+    formatedDate() {
+      const date = this.event.startDate.toDate();
+      let hh = String(date.getHours()).padStart(2, "0");
+      let mn = String(date.getMinutes()).padStart(2, "0");
+      let dd = String(date.getDate()).padStart(2, "0");
+      let mm = String(date.getMonth() + 1).padStart(2, "0");
+      let yy = date.getFullYear();
+      return `${dd}-${mm}-${yy} ${hh}:${mn}`;
     },
+  },
 };
 </script>
