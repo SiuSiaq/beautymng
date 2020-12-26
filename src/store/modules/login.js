@@ -3,7 +3,7 @@ import { auth, db } from "@/main";
 const state = {
     isLoggedIn: false,
     user: null,
-    userData: null,
+    userData: {},
     alert: {
         show: false,
         text: '',
