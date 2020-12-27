@@ -1,17 +1,19 @@
 <template>
-  <v-dialog v-model="dialog" max-width="400">
+  <v-dialog
+    v-model="dialog"
+    :fullscreen="$vuetify.breakpoint.mobile"
+    max-width="400"
+    :hide-overlay="$vuetify.breakpoint.mobile"
+    :transition="
+      $vuetify.breakpoint.mobile
+        ? 'dialog-bottom-transition'
+        : 'scale-transition'
+    "
+  >
     <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          fixed
-          bottom
-          right
-          fab
-          color="secondary"
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-icon large>mdi-plus-circle</v-icon>
-        </v-btn>
+      <v-btn fixed bottom right fab color="secondary" v-bind="attrs" v-on="on">
+        <v-icon large>mdi-plus-circle</v-icon>
+      </v-btn>
     </template>
 
     <v-card>

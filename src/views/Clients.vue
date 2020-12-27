@@ -6,7 +6,7 @@
         <v-col cols="12" md="3">
           <v-card class="px-4 pt-2">
             <v-autocomplete
-              no-data-text="Brak klientów w bazie danych"
+              no-data-text="Brak klientów"
               @change="searchSelect"
               offset-y
               v-model="searchClientId"
@@ -230,6 +230,7 @@ export default {
   watch: {
     async selectedClient(val) {
       if (val) {
+        this.searchClientId = val.id;
         let visits = await this.fetchClientVisits(val.id);
         this.plannedvisits = visits.plannedvisits;
         this.pastvisits = visits.pastvisits;

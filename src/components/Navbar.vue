@@ -82,6 +82,7 @@ export default {
       { icon: "mdi-bell-check", text: "Do potwierdzenia", route: "/confirms" },
       { icon: "mdi-account-box-multiple", text: "Klienci", route: "/clients" },
       { icon: "mdi-needle", text: "Zabiegi", route: "/treatments" },
+      { icon: "mdi-package-variant", text: "Produkty", route: "/products" },
       { icon: "mdi-finance", text: "Statystyki", route: "/statistics" },
     ],
     options: [

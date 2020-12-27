@@ -1,17 +1,19 @@
 <template>
-  <v-dialog v-model="dialog" max-width="400">
+  <v-dialog
+    v-model="dialog"
+    :fullscreen="$vuetify.breakpoint.mobile"
+    max-width="400"
+    :hide-overlay="$vuetify.breakpoint.mobile"
+    :transition="
+      $vuetify.breakpoint.mobile
+        ? 'dialog-bottom-transition'
+        : 'scale-transition'
+    "
+  >
     <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          fixed
-          bottom
-          right
-          fab
-          color="secondary"
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-icon large>mdi-plus-circle</v-icon>
-        </v-btn>
+      <v-btn fixed bottom right fab color="secondary" v-bind="attrs" v-on="on">
+        <v-icon large>mdi-plus-circle</v-icon>
+      </v-btn>
     </template>
 
     <v-card>
@@ -64,6 +66,31 @@
           label="Opis"
         >
         </v-textarea>
+        <v-btn text color="primary" @click="products.push({id: null, amount: null})" class="mb-2"
+          >Dodaj produkt</v-btn
+        >
+        <div v-for="(product, i) in products" :key="i">
+          <v-autocomplete
+            class="mt-2"
+            v-model="products[i].id"
+            :items="getAllProducts"
+            item-text="name"
+            item-value="id"
+            label="Produkt"
+            no-data-text="Brak produktów"
+            required
+          ></v-autocomplete>
+          <div class="d-flex justify-center align-center">
+            <v-text-field
+            v-model="product.amount"
+            :rules="amountRules"
+            label="Ilość wymagana do zabiegu"
+            type="number"
+            required
+          ></v-text-field>
+          <v-btn icon class="ml-3"><v-icon color="error" @click="products.splice(i, 1)">mdi-delete</v-icon></v-btn>
+          </div>
+        </div>
         <div class="caption mb-2">Kolor</div>
         <v-color-picker
           required
@@ -91,11 +118,12 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "AddTreatment",
   data: () => ({
+    products: [],
     treatmentDesc: "",
     loader: false,
     dialog: false,
@@ -116,6 +144,10 @@ export default {
       (v) => !!v || "Cena zabiegu jest wymagana",
       (v) => v > 0 || "Cena zabiegu musi być większa od 0",
     ],
+    amountRules: [
+      (v) => !!v || "Cena zabiegu jest wymagana",
+      (v) => v > 0 || "Cena zabiegu musi być większa od 0",
+    ],
   }),
   methods: {
     ...mapActions(["addTreatment"]),
@@ -125,16 +157,28 @@ export default {
         if (!this.timeMinute) this.timeMinute = 0;
         if (!this.timeHour) this.timeHour = 0;
 
+        if(this.products.length > 0) {
+          this.products.forEach(p => {
+            const tmp = this.getAllProducts.find(v => v.id === p.id)
+            if(tmp) {
+              p.name = tmp.name
+              p.amount = parseFloat(p.amount)
+              p.unit = tmp.unit
+              p.ref = this.getUserData.salon.ref.collection('products').doc(tmp.id)
+              delete p.id
+            }
+          })
+        }
+
         const newTreatment = {
           name: this.treatname,
           hours: this.timeHour,
           minutes: this.timeMinute,
           price: parseFloat(this.price),
+          products: this.products ? this.products : [],
           color: this.color,
           visits: 0,
           plannedcount: 0,
-          pastvisits: [],
-          plannedvisits: [],
           description:
             this.treatmentDesc !== undefined ? this.treatmentDesc : "",
         };
@@ -152,7 +196,11 @@ export default {
     },
     reset() {
       this.$refs.form.reset();
+      this.products = [];
     },
+  },
+  computed: {
+    ...mapGetters(["getAllProducts", "getUserData"]),
   },
 };
 </script>

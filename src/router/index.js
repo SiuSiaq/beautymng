@@ -4,6 +4,7 @@ import Home from '../views/Home'
 import Schedule from '../views/Schedule'
 import Clients from '../views/Clients'
 import Treatments from '../views/Treatments'
+import Products from '../views/Products'
 import Today from '../views/Today'
 import Confirms from '../views/Confirms'
 import Login from '../views/Login'
@@ -43,6 +44,14 @@ Vue.use(VueRouter)
     path: '/treatments',
     name: 'Treatments',
     component: Treatments,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/products',
+    name: 'Products',
+    component: Products,
     meta: {
       requiresAuth: true,
     },

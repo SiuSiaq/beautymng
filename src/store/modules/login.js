@@ -132,6 +132,7 @@ const actions = {
                 dispatch('fetchEvents')
                 dispatch('fetchClients')
                 dispatch('fetchTreatments')
+                dispatch('fetchProducts')
 
                 /*var email = user.email;
                 var uid = user.uid;

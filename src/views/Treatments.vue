@@ -4,8 +4,12 @@
       <AddTreatment @treatmentAdded="selectedTreatment = getAllTreatments[0]" />
       <v-row no-gutters>
         <v-col cols="12" md="3">
-          <v-card class="px-4 pt-2" :rounded="$vuetify.breakpoint.mobile ? 'xl' : '' ">
+          <v-card
+            class="px-4 pt-2"
+            :rounded="$vuetify.breakpoint.mobile ? 'xl' : ''"
+          >
             <v-autocomplete
+              no-data-text="Brak zabiegów"
               @change="searchSelect"
               offset-y
               v-model="searchTreatmentId"
@@ -62,6 +66,12 @@
             <v-col cols="6">
               <div class="caption">Zaplanowanych wizyt</div>
               <div>{{ selectedTreatment.plannedcount }}</div>
+            </v-col>
+            <v-col cols="6">
+              <div class="caption">Wymagane produkty</div>
+              <div v-for="(product, i) in selectedTreatment.products" :key="i">
+                {{product.name}} {{product.amount}} {{product.unit}}
+              </div>
             </v-col>
             <v-col cols="12">
               <div class="caption">Opis</div>
@@ -217,6 +227,7 @@ export default {
   watch: {
     async selectedTreatment(val) {
       if (val) {
+        this.searchTreatmentId = val.id;
         let visits = await this.fetchTreatmentVisits(val.id);
         this.plannedvisits = visits.plannedvisits;
         this.pastvisits = visits.pastvisits;
@@ -225,8 +236,8 @@ export default {
   },
   mounted() {
     if (this.getAllTreatments.length > 0) {
-      this.selectedTreatment = this.getAllTreatments[0]
-      this.searchTreatmentId = this.getAllTreatments[0].id
+      this.selectedTreatment = this.getAllTreatments[0];
+      this.searchTreatmentId = this.getAllTreatments[0].id;
     }
   },
 };
