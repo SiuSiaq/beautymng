@@ -26,6 +26,7 @@ export const auth = firebase.auth();
 export const storageRef = firebase.storage().ref();
 export const increment = firebase.firestore.FieldValue.increment(1);
 export const decrement = firebase.firestore.FieldValue.increment(-1);
+export const changeValue = (amount) => firebase.firestore.FieldValue.increment(amount);
 export let uid = null;
 
 new Vue({

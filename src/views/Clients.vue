@@ -1,50 +1,198 @@
 <template>
-  <div class="test">
-    <v-container fluid>
+  <v-container fluid :class="$vuetify.breakpoint.mobile ? 'pa-0' : ''">
+    <v-row no-gutters v-if="!$vuetify.breakpoint.mobile">
       <AddClient @clientAdded="selectedClient = getAllClients[0]" />
-      <v-row no-gutters>
-        <v-col cols="12" md="3">
-          <v-card class="px-4 pt-2">
-            <v-autocomplete
-              no-data-text="Brak klientów"
-              @change="searchSelect"
-              offset-y
-              v-model="searchClientId"
-              :items="getAllClients"
-              item-text="fullname"
-              item-value="id"
-              label="Klient"
-              prepend-icon="mdi-account-search-outline"
-            ></v-autocomplete>
-            <v-list
-              v-if="!$vuetify.breakpoint.mobile"
-              three-line
-              style="height:80vh; overflow-y: scroll;"
-            >
-              <v-list-item-group>
-                <v-list-item
-                  @click="selectedClient = client"
-                  v-for="client in getAllClients"
-                  :key="client.id"
-                >
-                  <v-list-item-avatar
-                    class="white--text"
-                    :color="client.color"
-                    >{{ client.name[0] }}</v-list-item-avatar
+      <v-col cols="12" md="3">
+        <v-card class="px-4 pt-2">
+          <v-autocomplete
+            no-data-text="Brak klientów"
+            @change="searchSelect"
+            offset-y
+            v-model="searchClientId"
+            :items="getAllClients"
+            item-text="fullname"
+            item-value="id"
+            label="Klient"
+            prepend-icon="mdi-account-search-outline"
+          ></v-autocomplete>
+          <v-list three-line style="height:80vh; overflow-y: scroll;">
+            <v-list-item-group>
+              <v-list-item
+                @click="selectedClient = client"
+                v-for="client in getAllClients"
+                :key="client.id"
+              >
+                <v-list-item-avatar class="white--text" :color="client.color">{{
+                  client.name[0]
+                }}</v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>{{ client.fullname }}</v-list-item-title>
+                  <v-list-item-subtitle
+                    >{{ client.phone }} <br />
+                    {{ client.email }}</v-list-item-subtitle
                   >
-                  <v-list-item-content>
-                    <v-list-item-title>{{ client.fullname }}</v-list-item-title>
-                    <v-list-item-subtitle
-                      >{{ client.phone }} <br />
-                      {{ client.email }}</v-list-item-subtitle
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-card>
+      </v-col>
+      <v-col cols="12" md="9">
+        <v-row class="pa-5">
+          <v-col cols="6">
+            <div class="caption">Imię</div>
+            <div>{{ selectedClient.name }}</div>
+          </v-col>
+          <v-col cols="6">
+            <div class="caption">Nazwisko</div>
+            <div>{{ selectedClient.surname }}</div>
+          </v-col>
+          <v-col cols="6">
+            <div class="caption">Telefon</div>
+            <div>{{ selectedClient.phone }}</div>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <div class="caption">Email</div>
+            <div>{{ selectedClient.email }}</div>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <div class="caption">Zarejestrowany</div>
+            <div>{{ registeredText }}</div>
+          </v-col>
+          <v-col cols="6">
+            <div class="caption">Liczba wizyt</div>
+            <div>{{ selectedClient.visits }}</div>
+          </v-col>
+          <v-col cols="6">
+            <div class="caption">Zaplanowanych wizyt</div>
+            <div>{{ selectedClient.plannedcount }}</div>
+          </v-col>
+          <v-col cols="12">
+            <div class="caption">Zaplanowane wizyty</div>
+            <div
+              v-if="
+                selectedClient.plannedcount === 0 ||
+                  selectedClient.plannedcount === undefined
+              "
+            >
+              Brak zaplanowanych wizyt
+            </div>
+            <v-row v-else>
+              <v-col
+                cols="12"
+                md="3"
+                v-for="plvisit in plannedvisits"
+                :key="plvisit.id"
+              >
+                <v-card>
+                  <v-card-text>
+                    <div
+                      v-if="plvisit.confirmed"
+                      class="success--text subtitle-1"
                     >
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="9">
+                      Potwierdzono
+                    </div>
+                    <div v-else class="error--text subtitle-1">
+                      Nie potwierdzono
+                    </div>
+                    <div class="text-h5 text--primary">
+                      {{ plvisit.start.slice(0, 10) }}<br />{{
+                        plvisit.start.slice(10)
+                      }}
+                    </div>
+                    <div class="text-h6 font-weight-regular">
+                      {{ plvisit.name }}
+                      <br />
+                    </div>
+                  </v-card-text>
+                  <v-card-actions class="mt-n4">
+                    <DeleteEvent
+                      @eventRemoved="eventDeleted($event)"
+                      :eventRef="plvisit.eventRef"
+                    />
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-col>
+          <v-col cols="12">
+            <v-expansion-panels focusable>
+              <v-expansion-panel>
+                <v-expansion-panel-header>Wizyty</v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-list>
+                    <v-list-item-group>
+                      <Visit
+                        :event="pastevent"
+                        v-for="pastevent in pastvisits"
+                        :key="pastevent.id"
+                      />
+                    </v-list-item-group>
+                  </v-list>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+            <div class="mt-4">
+              <v-btn
+                v-if="selectedClient.id !== undefined"
+                text
+                color="error"
+                @click="deleteClient(selectedClient.id)"
+                >Usuń</v-btn
+              >
+              <EditClient
+                v-if="selectedClient.id !== undefined"
+                :client="selectedClient"
+              />
+            </div>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
+
+    <div v-else style="height: 100%; width: 100%">
+      <v-tabs v-model="tab" background-color="primary" color="white" grow>
+        <v-tab v-for="item in ['Lista', 'Klient']" :key="item">
+          {{ item }}
+        </v-tab>
+      </v-tabs>
+
+      <v-tabs-items v-model="tab">
+        <v-tab-item class="pa-4">
+          <v-autocomplete
+            no-data-text="Brak klientów"
+            @change="searchSelect"
+            offset-y
+            v-model="searchClientId"
+            :items="getAllClients"
+            item-text="fullname"
+            item-value="id"
+            label="Klient"
+            prepend-icon="mdi-account-search-outline"
+          ></v-autocomplete>
+          <v-list three-line max-height="100%">
+            <v-list-item-group>
+              <v-list-item
+                @click="selectedClient = client"
+                v-for="client in getAllClients"
+                :key="client.id"
+              >
+                <v-list-item-avatar class="white--text" :color="client.color">{{
+                  client.name[0]
+                }}</v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>{{ client.fullname }}</v-list-item-title>
+                  <v-list-item-subtitle
+                    >{{ client.phone }} <br />
+                    {{ client.email }}</v-list-item-subtitle
+                  >
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-tab-item>
+        <v-tab-item>
+          <AddClient @clientAdded="selectedClient = getAllClients[0]" />
           <v-row class="pa-5">
             <v-col cols="6">
               <div class="caption">Imię</div>
@@ -58,11 +206,11 @@
               <div class="caption">Telefon</div>
               <div>{{ selectedClient.phone }}</div>
             </v-col>
-            <v-col cols="12" sm="6">
+            <v-col :cols="selectedClient.email.length < 19 ? '6' : '12'" md="6">
               <div class="caption">Email</div>
               <div>{{ selectedClient.email }}</div>
             </v-col>
-            <v-col cols="12" sm="6">
+            <v-col cols="6">
               <div class="caption">Zarejestrowany</div>
               <div>{{ registeredText }}</div>
             </v-col>
@@ -154,10 +302,10 @@
               </div>
             </v-col>
           </v-row>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+        </v-tab-item>
+      </v-tabs-items>
+    </div>
+  </v-container>
 </template>
 
 <script>
@@ -176,6 +324,8 @@ export default {
     Visit,
   },
   data: () => ({
+    tab: null,
+    first: false,
     selectedClient: {
       name: "",
       surname: "",
@@ -194,12 +344,10 @@ export default {
     registeredText() {
       if (this.selectedClient.registered) {
         const date = this.selectedClient.registered.toDate();
-        let hh = String(date.getHours()).padStart(2, "0");
-        let mn = String(date.getMinutes()).padStart(2, "0");
         let dd = String(date.getDate()).padStart(2, "0");
         let mm = String(date.getMonth() + 1).padStart(2, "0");
         let yy = date.getFullYear();
-        return `${dd}-${mm}-${yy} ${hh}:${mn}`;
+        return `${dd}.${mm}.${yy}`;
       } else {
         return "Brak";
       }
@@ -230,6 +378,8 @@ export default {
   watch: {
     async selectedClient(val) {
       if (val) {
+        if (this.first) this.tab = 1;
+        else this.first = true;
         this.searchClientId = val.id;
         let visits = await this.fetchClientVisits(val.id);
         this.plannedvisits = visits.plannedvisits;
@@ -239,8 +389,8 @@ export default {
   },
   mounted() {
     if (this.getAllClients.length > 0) {
-      this.selectedClient = this.getAllClients[0]
-      this.searchClientId = this.getAllClients[0].id
+      this.selectedClient = this.getAllClients[0];
+      this.searchClientId = this.getAllClients[0].id;
     }
   },
 };

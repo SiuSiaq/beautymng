@@ -208,7 +208,7 @@ export default {
     timeMinute: null,
   }),
   methods: {
-    ...mapActions(["addClient", "addEvent", "fetchClients", "fetchTreatments"]),
+    ...mapActions(["addClient", "addEvent"]),
     async clientClick() {
       if (!this.$refs.clientForm.validate()) return;
 
@@ -326,10 +326,6 @@ export default {
       console.log(cats);
       return cats;
     },
-  },
-  mounted() {
-    this.fetchClients();
-    this.fetchTreatments();
   },
   computed: {
     ...mapGetters([

@@ -1,5 +1,9 @@
 <template>
-  <v-container fluid class="testHomeClass" :class="$vuetify.breakpoint.mobile ? 'pa-0' : ''">
+  <v-container
+    fluid
+    class="testHomeClass"
+    :class="$vuetify.breakpoint.mobile ? 'pa-0' : ''"
+  >
     <div v-if="$vuetify.breakpoint.mobile" style="height: 100%; width: 100%">
       <v-tabs v-model="tab" background-color="transparent" color="white" grow>
         <v-tab v-for="item in items" :key="item">
@@ -9,9 +13,7 @@
 
       <v-tabs-items v-model="tab">
         <v-tab-item>
-          <v-card
-            v-if="getUserData.doctor"
-            class="pa-3"
+          <v-card v-if="getUserData.doctor" class="pa-3"
             ><v-sheet height="auto">
               <v-toolbar flat color="white">
                 <v-btn
@@ -187,13 +189,13 @@
         </v-tab-item>
 
         <v-tab-item>
-          <v-card class="pa-3" rounded="lg">
+          <v-card class="pa-3">
             <v-card-title class="text-h4 grey--text text--darken-2"
               >Dzisiaj</v-card-title
             >
             <v-list
               v-if="getTodayNotConfirmedEvents.length > 0"
-              :class="!$vuetify.breakpoint.mobile ? 'desktop' : ''"
+              style="height: 75.3vh; overflow-y: scroll;"
               three-line
             >
               <v-list-item-group>
@@ -204,23 +206,51 @@
                 />
               </v-list-item-group>
             </v-list>
-            <div v-else class="d-flex">
-              <v-icon
-                :size="!$vuetify.breakpoint.mobile ? 50 : 30"
-                color="success"
-                class="fab mr-3"
-                >mdi-check-circle</v-icon
-              >
-              <div
-                class="mt-md-2 text-subtitle-1 font-weight-regular text-md-h5 success--text"
-              >
-                Wszystkie zabiegi potwierdzone
+            <div v-else style="height: 75.3vh">
+              <div class="d-flex">
+                <v-icon
+                  :size="!$vuetify.breakpoint.mobile ? 50 : 30"
+                  color="success"
+                  class="fab mr-3"
+                  >mdi-check-circle</v-icon
+                >
+                <div
+                  class="mt-md-2 text-subtitle-1 font-weight-regular text-md-h5 success--text"
+                >
+                  Wszystkie zabiegi potwierdzone
+                </div>
               </div>
             </div>
           </v-card>
-          <v-tab-item>
-            <v-card></v-card>
-          </v-tab-item>
+        </v-tab-item>
+        <v-tab-item>
+          <v-card class="pa-3">
+            <v-card-title class="text-h4 grey--text text--darken-2"
+              >Produkty</v-card-title
+            >
+            <v-list three-line style="height: 75.3vh; overflow-y: scroll;">
+              <v-list-item-group>
+                <v-list-item
+                  v-for="product in getLowProducts"
+                  :key="product.id"
+                >
+                  <v-list-item-avatar
+                    class="white--text"
+                    :color="product.color"
+                    >{{ product.name[0] }}</v-list-item-avatar
+                  >
+                  <v-list-item-content>
+                    <v-list-item-title>{{ product.name }}</v-list-item-title>
+                    <v-list-item-subtitle
+                      >Obecnie: {{ product.amount }} {{ product.unit }}<br />
+                      Pozostanie: {{ product.plannedAmount }}
+                      {{ product.unit }}</v-list-item-subtitle
+                    >
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-card>
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -441,6 +471,32 @@
           <v-card-title class="text-h4 grey--text text--darken-2"
             >Produkty</v-card-title
           >
+          <v-list three-line style="height: 69vh; overflow-y: scroll;">
+            <v-list-item-group>
+              <v-list-item v-for="product in getLowProducts" :key="product.id">
+                <v-list-item-avatar
+                  class="white--text"
+                  :color="product.color"
+                  >{{ product.name[0] }}</v-list-item-avatar
+                >
+                <v-list-item-content>
+                  <v-list-item-title>{{ product.name }}</v-list-item-title>
+                  <v-list-item-subtitle
+                    >Obecnie: {{ product.amount }} {{ product.unit }}<br />
+                    Pozostanie:
+                    <span
+                      :class="
+                        product.plannedAmount < product.newAmount
+                          ? 'error--text'
+                          : ''
+                      "
+                      >{{ product.plannedAmount }} {{ product.unit }}</span
+                    ></v-list-item-subtitle
+                  >
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
         </v-card>
       </v-col>
     </v-row>
@@ -534,17 +590,13 @@ export default {
       "getSalon",
       "getUserData",
       "getTodayNotConfirmedEvents",
+      "getLowProducts",
     ]),
     cal() {
       return this.ready ? this.$refs.calendar : null;
     },
     nowY() {
       return this.cal ? this.cal.timeToY(this.cal.times.now) + "px" : "-10px";
-    },
-    categories() {
-      let cats = [];
-      cats.push(this.getUserData.name);
-      return cats;
     },
     getMyEvents() {
       return this.getAllEvents.filter(

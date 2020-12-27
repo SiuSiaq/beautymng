@@ -206,6 +206,7 @@ export default {
         category: this.selectedDoctor.fullname,
         price: treatment.price,
         additionalTreatments: [],
+        products: treatment.products,
       };
 
       this.loader = true;

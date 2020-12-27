@@ -4,6 +4,7 @@ const state = {
 
 const getters = {
     getAllProducts: state => state.products,
+    getLowProducts: state => state.products.filter( v => v.plannedAmount <= v.newAmount * 2)
 };
 
 const actions = {

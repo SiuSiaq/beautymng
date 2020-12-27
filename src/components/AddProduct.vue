@@ -124,7 +124,7 @@ export default {
     unitRules: [
       (v) => !!v || "Jednostka jest wymagana",
     ],
-    units: ['szt', 'mg', 'ml', 'g', 'l', 'kg'],
+    units: ['szt', 'mg', 'ml', 'g', 'l', 'kg', 'j'],
     amount: null,
     amountRules: [
       (v) => v >= 0 || "Obecna ilość produku musi być większa lub równa 0",

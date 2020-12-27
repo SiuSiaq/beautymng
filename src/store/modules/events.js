@@ -1,4 +1,4 @@
-import { db, increment, decrement, storageRef } from '@/main';
+import { db, increment, decrement, changeValue, storageRef } from '@/main';
 
 const state = {
     events: [],
@@ -214,6 +214,7 @@ const actions = {
                 startDate: newEvent.startDate,
                 clientName: newEvent.clientName,
                 doctor: newEvent.doctor,
+                products: newEvent.products,
             }
 
             const batch = db.batch();
@@ -236,6 +237,12 @@ const actions = {
                 plannedcount: increment,
             });
 
+            newEvent.products.forEach(product => {
+                batch.update(product.ref, {
+                    plannedAmount: changeValue(-1 * product.amount)
+                });
+            })
+
             await batch.commit();
             dispatch('showAlert', {
                 text: 'Pomyślnie dodano wizytę',
@@ -255,7 +262,7 @@ const actions = {
             const batch = db.batch();
 
             batch.delete(event.clientRef.collection('plannedvisits').doc(event.id));
-            
+
             batch.update(event.clientRef, {
                 plannedcount: decrement,
             });
@@ -271,6 +278,12 @@ const actions = {
             });
 
             batch.delete(rootState.login.userData.salon.ref.collection('events').doc(event.id));
+
+            event.products.forEach(product => {
+                batch.update(product.ref, {
+                    plannedAmount: changeValue(product.amount)
+                })
+            })
 
             await batch.commit();
             dispatch('showAlert', {
@@ -434,6 +447,26 @@ const actions = {
             batch.update(event.doctor.ref, {
                 visits: increment,
             });
+
+            event.products.forEach( product => {
+                batch.update(product.ref, {
+                    amount: changeValue(-1 * product.amount),
+                    used: increment,
+                })
+            })
+
+            event.additionalTreatments.forEach( treatment => {
+                batch.update(rootState.login.userData.salon.ref.collection('treatments').doc(treatment.id), {
+                    visits: increment,
+                })
+                treatment.products.forEach( product => {
+                    batch.update(product.ref, {
+                        amount: changeValue(-1 * product.amount),
+                        plannedAmount: changeValue(-1 * product.amount),
+                        used: increment,
+                    })
+                })
+            })
 
             await batch.commit();
 
