@@ -2,28 +2,49 @@ import { db, increment, decrement, changeValue, storageRef } from '@/main';
 
 const state = {
     events: [],
-    todayEvents: [],
-    todayNotConfirmedEvents: [],
-    tomorrowNotConfirmedEvents: [],
-    dayAfterNotConfirmedEvents: [],
-    tomorrowEvents: [],
-    dayAfterEvents: [],
     selectedEvent: null,
     currentEvent: null,
-    todayLeftEvents: [],
 };
 
 const getters = {
     getAllEvents: state => state.events,
-    getTodayEvents: state => state.todayEvents,
-    getTomorrowEvents: state => state.todayEvents,
-    getDayAfterEvents: state => state.dayAfterEvents,
-    getTomorrowNotConfirmedEvents: state => state.tomorrowNotConfirmedEvents,
-    getTodayNotConfirmedEvents: state => state.todayNotConfirmedEvents,
-    getDayAfterNotConfirmedEvents: state => state.dayAfterNotConfirmedEvents,
+    getTodayNotConfirmedEvents: state => state.events.filter(v => {
+        let tempDate = v.startDate.toDate()
+        tempDate.setHours(0,0,0,0)
+        let today = new Date()
+        today.setHours(0,0,0,0)
+        return !v.archived && !v.confirmed && today.toISOString() === tempDate.toISOString();
+    }).sort((a, b) => {
+        let d1 = a.startDate.toDate(),
+            d2 = b.startDate.toDate();
+        return d1 - d2;
+    }),
+    getTomorrowNotConfirmedEvents: state => state.events.filter(v => {
+        let tempDate = v.startDate.toDate()
+        tempDate.setHours(0,0,0,0)
+        let today = new Date()
+        today.setHours(0,0,0,0)
+        today.setDate(today.getDate() + 1)
+        return !v.archived && !v.confirmed && today.toISOString() === tempDate.toISOString();
+    }).sort((a, b) => {
+        let d1 = a.startDate.toDate(),
+            d2 = b.startDate.toDate();
+        return d1 - d2;
+    }),
+    getDayAfterNotConfirmedEvents: state => state.events.filter(v => {
+        let tempDate = v.startDate.toDate()
+        tempDate.setHours(0,0,0,0)
+        let today = new Date()
+        today.setHours(0,0,0,0)
+        today.setDate(today.getDate() + 2)
+        return !v.archived && !v.confirmed && today.toISOString() === tempDate.toISOString();
+    }).sort((a, b) => {
+        let d1 = a.startDate.toDate(),
+            d2 = b.startDate.toDate();
+        return d1 - d2;
+    }),
     getSelectedEvent: state => state.selectedEvent,
     getCurrentEvent: state => state.currentEvent,
-    getTodayLeftEvents: state => state.todayLeftEvents,
 };
 
 const actions = {
@@ -56,150 +77,6 @@ const actions = {
                 text: 'Nie udało się pobrać bazy danych wizyt',
                 success: false,
             });
-        }
-    },
-    async todayEvents({ commit }) {
-        try {
-            let today = new Date();
-            let tdEvents = state.events.filter(v => {
-                let tempDate = new Date(v.end);
-                return tempDate.getFullYear() === today.getFullYear()
-                    && tempDate.getMonth() === today.getMonth()
-                    && tempDate.getDate() === today.getDate();
-            });
-            tdEvents.sort((a, b) => {
-                let d1 = new Date(a.start),
-                    d2 = new Date(b.start);
-                return d1 - d2;
-            });
-            commit('setTodayEvents', tdEvents);
-            return;
-        } catch (error) {
-            console.error(error)
-        }
-    },
-    async todayNotConfirmedEvents({ commit }) {
-        try {
-            let today = new Date();
-            let tmEvents = state.events.filter(v => {
-                let tempDate = new Date(v.start);
-                return tempDate.getFullYear() === today.getFullYear()
-                    && tempDate.getMonth() === today.getMonth()
-                    && tempDate.getDate() === today.getDate() && !v.confirmed && today < tempDate;
-            });
-            tmEvents.sort((a, b) => {
-                let d1 = new Date(a.start),
-                    d2 = new Date(b.start);
-                return d1 - d2;
-            });
-            commit('setTodayNotConfirmedEvents', tmEvents);
-            return;
-        } catch (error) {
-            console.error(error)
-        }
-    },
-    async todayLeftEvents({ commit }) {
-        try {
-            let today = new Date();
-            let tdEvents = state.events.filter(v => {
-                let tempDate = new Date(v.start);
-                return tempDate.getFullYear() === today.getFullYear()
-                    && tempDate.getMonth() === today.getMonth()
-                    && tempDate.getDate() === today.getDate() && today < tempDate;
-            });
-            tdEvents.sort((a, b) => {
-                let d1 = new Date(a.start),
-                    d2 = new Date(b.start);
-                return d1 - d2;
-            });
-            commit('setTodayLeftEvents', tdEvents);
-            return;
-        } catch (error) {
-            console.error(error)
-        }
-    },
-    async tomorrowEvents({ commit }) {
-        try {
-            let tomorrow = new Date();
-            tomorrow.setTime(tomorrow.getTime() + 24 * 60 * 60 * 1000);
-            let tmEvents = state.events.filter(v => {
-                let tempDate = new Date(v.start);
-                return tempDate.getFullYear() === tomorrow.getFullYear()
-                    && tempDate.getMonth() === tomorrow.getMonth()
-                    && tempDate.getDate() === tomorrow.getDate();
-            });
-            tmEvents.sort((a, b) => {
-                let d1 = new Date(a.start),
-                    d2 = new Date(b.start);
-                return d1 - d2;
-            });
-            commit('setTomorrowEvents', tmEvents);
-            return;
-        } catch (error) {
-            console.error(error)
-        }
-    },
-    async tomorrowNotConfirmedEvents({ commit }) {
-        try {
-            let tomorrow = new Date();
-            tomorrow.setTime(tomorrow.getTime() + 24 * 60 * 60 * 1000);
-            let tmEvents = state.events.filter(v => {
-                let tempDate = new Date(v.start);
-                return tempDate.getFullYear() === tomorrow.getFullYear()
-                    && tempDate.getMonth() === tomorrow.getMonth()
-                    && tempDate.getDate() === tomorrow.getDate() && !v.confirmed;
-            });
-            tmEvents.sort((a, b) => {
-                let d1 = new Date(a.start),
-                    d2 = new Date(b.start);
-                return d1 - d2;
-            });
-            commit('setTomorrowNotConfirmedEvents', tmEvents);
-            return;
-        } catch (error) {
-            console.error(error)
-        }
-    },
-    async dayAfterNotConfirmedEvents({ commit }) {
-        try {
-            let dayAfter = new Date();
-            dayAfter.setTime(dayAfter.getTime() + 48 * 60 * 60 * 1000);
-            let tmEvents = state.events.filter(v => {
-                let tempDate = new Date(v.start);
-                return tempDate.getFullYear() === dayAfter.getFullYear()
-                    && tempDate.getMonth() === dayAfter.getMonth()
-                    && tempDate.getDate() === dayAfter.getDate() && !v.confirmed;
-            });
-            tmEvents.sort((a, b) => {
-                let d1 = new Date(a.start),
-                    d2 = new Date(b.start);
-                return d1 - d2;
-            });
-            commit('setDayAfterNotConfirmedEvents', tmEvents);
-            return;
-        } catch (error) {
-            console.error(error)
-        }
-    },
-    async dayAfterEvents({ commit }) {
-        try {
-            let dayAfter = new Date();
-            dayAfter.setTime(dayAfter.getTime() + 48 * 60 * 60 * 1000);
-            let tmEvents = state.events.filter(v => {
-                let tempDate = new Date(v.start);
-                return tempDate.getFullYear() === dayAfter.getFullYear()
-                    && tempDate.getMonth() === dayAfter.getMonth()
-                    && tempDate.getDate() === dayAfter.getDate();
-            });
-            tmEvents.sort((a, b) => {
-                let d1 = new Date(a.start),
-                    d2 = new Date(b.start);
-                return d1 - d2;
-            });
-            commit('setDayAfterEvents', tmEvents);
-            return;
-        } catch (error) {
-            console.error(error)
         }
     },
     async addEvent({ dispatch, rootState }, newEvent) {
@@ -490,14 +367,6 @@ const actions = {
 };
 
 const mutations = {
-    setEvents: (state, data) => state.events = data,
-    setTomorrowEvents: (state, data) => state.tomorrowEvents = data,
-    setTomorrowNotConfirmedEvents: (state, data) => state.tomorrowNotConfirmedEvents = data,
-    setDayAfterEvents: (state, data) => state.dayAfterEvents = data,
-    setTodayEvents: (state, data) => state.todayEvents = data,
-    setTodayNotConfirmedEvents: (state, data) => state.todayNotConfirmedEvents = data,
-    setDayAfterNotConfirmedEvents: (state, data) => state.dayAfterNotConfirmedEvents = data,
-    setTodayLeftEvents: (state, data) => state.todayLeftEvents = data,
     setSelectedEvent: (state, data) => state.selectedEvent = data,
     setCurrentEvent: (state, data) => state.currentEvent = data,
     eventAdded: (state, newEvent) => state.events.push(newEvent),

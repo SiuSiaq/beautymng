@@ -528,10 +528,9 @@ export default {
     this.ready = true;
     this.scrollToTime();
     this.updateTime();
-    this.todayNotConfirmedEvents();
   },
   methods: {
-    ...mapActions(["archiveEvent", "todayNotConfirmedEvents"]),
+    ...mapActions(["archiveEvent"]),
     getEventColor(event) {
       return !event.archived ? event.color : "#969696";
     },

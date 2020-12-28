@@ -24,103 +24,104 @@
           <v-icon color="white">mdi-close</v-icon>
         </v-btn>
       </v-card-title>
+      <div style="max-width: 600px;" class="mx-auto">
+        <v-form ref="form" v-model="valid" class="mx-5">
+          <v-autocomplete
+            @change="treatmentSelected"
+            offset-y
+            class="mt-4"
+            v-model="selectedTreatmentId"
+            :items="getAllTreatments"
+            item-text="name"
+            item-value="id"
+            :rules="[(v) => !!v || 'Zabieg jest wymagany']"
+            label="Zabieg"
+            required
+          ></v-autocomplete>
 
-      <v-form ref="form" v-model="valid" class="mx-5">
-        <v-autocomplete
-          @change="treatmentSelected"
-          offset-y
-          class="mt-4"
-          v-model="selectedTreatmentId"
-          :items="getAllTreatments"
-          item-text="name"
-          item-value="id"
-          :rules="[(v) => !!v || 'Zabieg jest wymagany']"
-          label="Zabieg"
-          required
-        ></v-autocomplete>
+          <v-autocomplete
+            @change="clientSelected"
+            offset-y
+            v-model="selectedClientId"
+            :items="getAllClients"
+            item-text="fullname"
+            item-value="id"
+            :rules="[(v) => !!v || 'Klient jest wymagany']"
+            label="Klient"
+            required
+          ></v-autocomplete>
 
-        <v-autocomplete
-          @change="clientSelected"
-          offset-y
-          v-model="selectedClientId"
-          :items="getAllClients"
-          item-text="fullname"
-          item-value="id"
-          :rules="[(v) => !!v || 'Klient jest wymagany']"
-          label="Klient"
-          required
-        ></v-autocomplete>
+          <v-autocomplete
+            offset-y
+            @change="doctorSelected"
+            v-model="selectedDoctorId"
+            :items="getSalon.users"
+            item-text="fullname"
+            item-value="ref.id"
+            :rules="[(v) => !!v || 'Wykonawca jest wymagany']"
+            label="Wykonawca zabiegu"
+            required
+          ></v-autocomplete>
 
-        <v-autocomplete
-          offset-y
-          @change="doctorSelected"
-          v-model="selectedDoctorId"
-          :items="getSalon.users"
-          item-text="fullname"
-          item-value="ref.id"
-          :rules="[(v) => !!v || 'Wykonawca jest wymagany']"
-          label="Wykonawca zabiegu"
-          required
-        ></v-autocomplete>
+          <v-menu
+            v-model="menu1"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                required
+                v-model="computedDateFormatted"
+                label="Data zabiegu"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-bind="attrs"
+                v-on="on"
+                :rules="[(v) => !!v || 'Data zabiegu jest wymagana']"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              locale="pl-PL"
+              v-model="dateDisplay"
+              no-title
+              @input="menu1 = false"
+            ></v-date-picker>
+          </v-menu>
+          <v-row>
+            <v-col cols="6">
+              <v-select
+                required
+                :items="hours"
+                label="Godzina"
+                v-model="timeHour"
+              ></v-select>
+            </v-col>
+            <v-col cols="6">
+              <v-select
+                :items="minutes"
+                label="Minuty"
+                v-model="timeMinute"
+              ></v-select>
+            </v-col>
+          </v-row>
+        </v-form>
 
-        <v-menu
-          v-model="menu1"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              required
-              v-model="computedDateFormatted"
-              label="Data zabiegu"
-              prepend-icon="mdi-calendar"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-              :rules="[(v) => !!v || 'Data zabiegu jest wymagana']"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            locale="pl-PL"
-            v-model="dateDisplay"
-            no-title
-            @input="menu1 = false"
-          ></v-date-picker>
-        </v-menu>
-        <v-row>
-          <v-col cols="6">
-            <v-select
-              required
-              :items="hours"
-              label="Godzina"
-              v-model="timeHour"
-            ></v-select>
-          </v-col>
-          <v-col cols="6">
-            <v-select
-              :items="minutes"
-              label="Minuty"
-              v-model="timeMinute"
-            ></v-select>
-          </v-col>
-        </v-row>
-      </v-form>
-
-      <v-card-actions>
-        <v-btn @click="dialog = false" text>anuluj</v-btn>
-        <v-btn @click="reset" text>resetuj</v-btn>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          text
-          :loading="loader"
-          :disabled="!valid"
-          @click="submit"
-          >dodaj</v-btn
-        >
-      </v-card-actions>
+        <v-card-actions>
+          <v-btn @click="dialog = false" text>anuluj</v-btn>
+          <v-btn @click="reset" text>resetuj</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            :loading="loader"
+            :disabled="!valid"
+            @click="submit"
+            >dodaj</v-btn
+          >
+        </v-card-actions>
+      </div>
     </v-card>
   </v-dialog>
 </template>
