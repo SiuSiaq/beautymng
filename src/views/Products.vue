@@ -64,6 +64,10 @@
             </div>
           </v-col>
           <v-col cols="6">
+            <div class="caption">Dodano</div>
+            <div>{{ registeredText }}</div>
+          </v-col>
+          <v-col cols="6">
             <div class="caption">Pozostało</div>
             <div>{{ selectedProduct.amount }} {{ selectedProduct.unit }}</div>
           </v-col>
@@ -74,12 +78,11 @@
             </div>
           </v-col>
           <v-col cols="6">
-            <div class="caption">Dodano</div>
-            <div>{{ registeredText }}</div>
-          </v-col>
-          <v-col cols="6">
             <div class="caption">Użyto</div>
-            <div>{{ selectedProduct.used }}</div>
+            <div>
+              {{ selectedProduct.used }}
+              {{ selectedProduct.used === 1 ? "raz" : "razy" }}
+            </div>
           </v-col>
           <v-col cols="12">
             <div class="mt-4">
@@ -165,6 +168,10 @@
               </div>
             </v-col>
             <v-col cols="6">
+              <div class="caption">Dodano</div>
+              <div>{{ registeredText }}</div>
+            </v-col>
+            <v-col cols="6">
               <div class="caption">Pozostało</div>
               <div>{{ selectedProduct.amount }} {{ selectedProduct.unit }}</div>
             </v-col>
@@ -175,12 +182,11 @@
               </div>
             </v-col>
             <v-col cols="6">
-              <div class="caption">Dodano</div>
-              <div>{{ registeredText }}</div>
-            </v-col>
-            <v-col cols="6">
               <div class="caption">Użyto</div>
-              <div>{{ selectedProduct.used }}</div>
+              <div>
+                {{ selectedProduct.used }}
+                {{ selectedProduct.used === 1 ? "raz" : "razy" }}
+              </div>
             </v-col>
             <v-col cols="12">
               <div class="mt-4">

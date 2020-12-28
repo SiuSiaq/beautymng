@@ -36,6 +36,7 @@
             item-value="id"
             :rules="[(v) => !!v || 'Zabieg jest wymagany']"
             label="Zabieg"
+            no-data-text="Brak zabiegu"
             required
           ></v-autocomplete>
 
@@ -48,6 +49,7 @@
             item-value="id"
             :rules="[(v) => !!v || 'Klient jest wymagany']"
             label="Klient"
+            no-data-text="Brak klienta"
             required
           ></v-autocomplete>
 
@@ -60,6 +62,7 @@
             item-value="ref.id"
             :rules="[(v) => !!v || 'Wykonawca jest wymagany']"
             label="Wykonawca zabiegu"
+            no-data-text="Brak wykonawcy"
             required
           ></v-autocomplete>
 

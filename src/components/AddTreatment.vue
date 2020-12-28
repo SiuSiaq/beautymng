@@ -25,94 +25,104 @@
         </v-btn>
       </v-card-title>
 
-      <v-form ref="form" v-model="valid" class="mx-5">
-        <v-text-field
-          class="mt-4"
-          v-model="treatname"
-          :counter="50"
-          :rules="nameRules"
-          label="Nazwa zabiegu"
-          required
-        ></v-text-field>
-        <h3 class="caption mb-n3 mt-1">Czas zabiegu</h3>
-        <v-row>
-          <v-col cols="6">
-            <v-select
-              :items="hours"
-              label="Godziny"
-              v-model="timeHour"
-            ></v-select>
-          </v-col>
-          <v-col cols="6">
-            <v-select
-              :items="minutes"
-              label="Minuty"
-              v-model="timeMinute"
-            ></v-select>
-          </v-col>
-        </v-row>
-        <v-text-field
-          v-model="price"
-          :rules="priceRules"
-          label="Cena zabiegu"
-          type="number"
-          required
-        ></v-text-field>
-        <v-textarea
-          rows="1"
-          v-model="treatmentDesc"
-          auto-grow
-          clearable
-          label="Opis"
-        >
-        </v-textarea>
-        <v-btn text color="primary" @click="products.push({id: null, amount: null})" class="mb-2"
-          >Dodaj produkt</v-btn
-        >
-        <div v-for="(product, i) in products" :key="i">
-          <v-autocomplete
-            class="mt-2"
-            v-model="products[i].id"
-            :items="getAllProducts"
-            item-text="name"
-            item-value="id"
-            label="Produkt"
-            no-data-text="Brak produktów"
+      <div style="max-width: 600px;" class="mx-auto">
+        <v-form ref="form" v-model="valid" class="mx-5">
+          <v-text-field
+            class="mt-4"
+            v-model="treatname"
+            :counter="50"
+            :rules="nameRules"
+            label="Nazwa zabiegu"
             required
-          ></v-autocomplete>
-          <div class="d-flex justify-center align-center">
-            <v-text-field
-            v-model="product.amount"
-            :rules="amountRules"
-            label="Ilość wymagana do zabiegu"
+          ></v-text-field>
+          <h3 class="caption mb-n3 mt-1">Czas zabiegu</h3>
+          <v-row>
+            <v-col cols="6">
+              <v-select
+                :items="hours"
+                label="Godziny"
+                v-model="timeHour"
+              ></v-select>
+            </v-col>
+            <v-col cols="6">
+              <v-select
+                :items="minutes"
+                label="Minuty"
+                v-model="timeMinute"
+              ></v-select>
+            </v-col>
+          </v-row>
+          <v-text-field
+            v-model="price"
+            :rules="priceRules"
+            label="Cena zabiegu"
             type="number"
             required
           ></v-text-field>
-          <v-btn icon class="ml-3"><v-icon color="error" @click="products.splice(i, 1)">mdi-delete</v-icon></v-btn>
+          <v-textarea
+            rows="1"
+            v-model="treatmentDesc"
+            auto-grow
+            clearable
+            label="Opis"
+          >
+          </v-textarea>
+          <v-btn
+            text
+            color="primary"
+            @click="products.push({ id: null, amount: null })"
+            class="mb-2"
+            >Dodaj produkt</v-btn
+          >
+          <div v-for="(product, i) in products" :key="i">
+            <v-autocomplete
+              class="mt-2"
+              v-model="products[i].id"
+              :items="getAllProducts"
+              item-text="name"
+              item-value="id"
+              label="Produkt"
+              no-data-text="Brak produktów"
+              required
+            ></v-autocomplete>
+            <div class="d-flex justify-center align-center">
+              <v-text-field
+                v-model="product.amount"
+                :rules="amountRules"
+                label="Ilość wymagana do zabiegu"
+                type="number"
+                required
+              ></v-text-field>
+              <v-btn icon class="ml-3"
+                ><v-icon color="error" @click="products.splice(i, 1)"
+                  >mdi-delete</v-icon
+                ></v-btn
+              >
+            </div>
           </div>
-        </div>
-        <div class="caption mb-2">Kolor</div>
-        <v-color-picker
-          required
-          class="ml-5"
-          v-model="color"
-          hide-inputs
-        ></v-color-picker>
-      </v-form>
+          <div class="caption mb-2">Kolor</div>
+          <v-color-picker
+            required
+            class="ml-5"
+            v-model="color"
+            hide-inputs
+          ></v-color-picker>
+        </v-form>
 
-      <v-card-actions>
-        <v-btn @click="dialog = false" text>Anuluj</v-btn>
-        <v-btn @click="reset" text>resetuj</v-btn>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          text
-          :loading="loader"
-          :disabled="!valid"
-          @click="submit"
-          >Dodaj</v-btn
-        >
-      </v-card-actions>
+        <v-card-actions>
+          <v-btn @click="dialog = false" text>Anuluj</v-btn>
+          <v-btn @click="reset" text>resetuj</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            :loading="loader"
+            :disabled="!valid"
+            @click="submit"
+            >Dodaj</v-btn
+          >
+        </v-card-actions>
+      </div>
     </v-card>
   </v-dialog>
 </template>
@@ -157,17 +167,19 @@ export default {
         if (!this.timeMinute) this.timeMinute = 0;
         if (!this.timeHour) this.timeHour = 0;
 
-        if(this.products.length > 0) {
-          this.products.forEach(p => {
-            const tmp = this.getAllProducts.find(v => v.id === p.id)
-            if(tmp) {
-              p.name = tmp.name
-              p.amount = parseFloat(p.amount)
-              p.unit = tmp.unit
-              p.ref = this.getUserData.salon.ref.collection('products').doc(tmp.id)
-              delete p.id
+        if (this.products.length > 0) {
+          this.products.forEach((p) => {
+            const tmp = this.getAllProducts.find((v) => v.id === p.id);
+            if (tmp) {
+              p.name = tmp.name;
+              p.amount = parseFloat(p.amount);
+              p.unit = tmp.unit;
+              p.ref = this.getUserData.salon.ref
+                .collection("products")
+                .doc(tmp.id);
+              delete p.id;
             }
-          })
+          });
         }
 
         const newTreatment = {

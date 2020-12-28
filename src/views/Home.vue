@@ -179,7 +179,11 @@
                     <v-spacer></v-spacer>
                     <EventSummary
                       :event="selectedEvent"
-                      @archived="selectedOpen = false"
+                      @archived="
+                        setTimeout(() => {
+                          selectedOpen = false;
+                        }, 500)
+                      "
                       v-if="!selectedEvent.archived"
                     />
                   </v-card-actions>
@@ -225,10 +229,7 @@
         </v-tab-item>
         <v-tab-item>
           <v-card class="pa-3">
-            <v-card-title class="text-h4 grey--text text--darken-2"
-              >Produkty</v-card-title
-            >
-            <v-list three-line style="height: 75.3vh; overflow-y: scroll;">
+            <v-list three-line style="height: 84vh; overflow-y: scroll;">
               <v-list-item-group>
                 <v-list-item
                   v-for="product in getLowProducts"
@@ -425,7 +426,11 @@
                   <v-spacer></v-spacer>
                   <EventSummary
                     :event="selectedEvent"
-                    @archived="selectedOpen = false"
+                    @archived="
+                      setTimeout(() => {
+                        selectedOpen = false;
+                      }, 500)
+                    "
                     v-if="!selectedEvent.archived"
                   />
                 </v-card-actions>

@@ -211,7 +211,7 @@ const actions = {
         }
         return;
     },
-    async confirmEvent({ commit, dispatch, rootState }, event) {
+    async confirmEvent({ dispatch, rootState }, event) {
         try {
             const batch = db.batch();
 
@@ -228,17 +228,6 @@ const actions = {
             });
 
             await batch.commit();
-
-            let tmpdate = new Date();
-            let dd = new Date(event.start);
-            if (tmpdate.getDate() === dd.getDate()) {
-                commit('eventTodayConfirmed', event.id);
-                return;
-            }
-            tmpdate.setDate(tmpdate.getDate() + 1);
-            if (tmpdate.getDate() === dd.getDate())
-                commit('eventTomorrowConfirmed', event.id);
-            else commit('eventDayAfterConfirmed', event.id);
 
             dispatch('showAlert', {
                 text: 'Pomyślnie potwierdzono wizytę',
@@ -372,9 +361,6 @@ const mutations = {
     eventAdded: (state, newEvent) => state.events.push(newEvent),
     eventRemoved: (state, id) => state.events = state.events.filter(v => v.id !== id),
     eventUpdated: (state, event) => state.events = state.events.map(obj => obj.id === event.id ? event : obj),
-    eventTodayConfirmed: (state, id) => state.todayNotConfirmedEvents = state.todayNotConfirmedEvents.filter(v => v.id !== id),
-    eventTomorrowConfirmed: (state, id) => state.tomorrowNotConfirmedEvents = state.tomorrowNotConfirmedEvents.filter(v => v.id !== id),
-    eventDayAfterConfirmed: (state, id) => state.dayAfterNotConfirmedEvents = state.dayAfterNotConfirmedEvents.filter(v => v.id !== id),
 };
 
 export default {

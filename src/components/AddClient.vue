@@ -25,52 +25,54 @@
         </v-btn>
       </v-card-title>
 
-      <v-form ref="form" v-model="valid" class="mx-5">
-        <v-text-field
-          class="mt-4"
-          v-model="clientName"
-          :counter="50"
-          :rules="nameRules"
-          label="Imię"
-          required
-        ></v-text-field>
+      <div style="max-width: 600px;" class="mx-auto">
+        <v-form ref="form" v-model="valid" class="mx-5">
+          <v-text-field
+            class="mt-4"
+            v-model="clientName"
+            :counter="50"
+            :rules="nameRules"
+            label="Imię"
+            required
+          ></v-text-field>
 
-        <v-text-field
-          v-model="clientSurname"
-          :counter="50"
-          :rules="surnameRules"
-          label="Nazwisko"
-          required
-        ></v-text-field>
+          <v-text-field
+            v-model="clientSurname"
+            :counter="50"
+            :rules="surnameRules"
+            label="Nazwisko"
+            required
+          ></v-text-field>
 
-        <v-text-field
-          v-model="clientEmail"
-          :rules="emailRules"
-          label="Email"
-          required
-        ></v-text-field>
+          <v-text-field
+            v-model="clientEmail"
+            :rules="emailRules"
+            label="Email"
+            required
+          ></v-text-field>
 
-        <v-text-field
-          v-model="clientPhone"
-          :rules="phoneRules"
-          label="Telefon"
-          required
-        ></v-text-field>
-      </v-form>
+          <v-text-field
+            v-model="clientPhone"
+            :rules="phoneRules"
+            label="Telefon"
+            required
+          ></v-text-field>
+        </v-form>
 
-      <v-card-actions>
-        <v-btn @click="dialog = false" text>Anuluj</v-btn>
-        <v-btn @click="reset" text>resetuj</v-btn>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          text
-          :loading="loader"
-          :disabled="!valid"
-          @click="submit"
-          >Dodaj</v-btn
-        >
-      </v-card-actions>
+        <v-card-actions>
+          <v-btn @click="dialog = false" text>Anuluj</v-btn>
+          <v-btn @click="reset" text>resetuj</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            :loading="loader"
+            :disabled="!valid"
+            @click="submit"
+            >Dodaj</v-btn
+          >
+        </v-card-actions>
+      </div>
     </v-card>
   </v-dialog>
 </template>
