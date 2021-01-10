@@ -1,7 +1,7 @@
 <template>
   <v-container fluid :class="$vuetify.breakpoint.mobile ? 'pa-0' : ''">
+    <AddProduct @productAdded="selectedProduct = getAllProducts[0]" />
     <v-row no-gutters v-if="!$vuetify.breakpoint.mobile">
-      <AddProduct @productAdded="selectedProduct = getAllProducts[0]" />
       <v-col cols="12" md="3">
         <v-card class="px-4 pt-2">
           <v-autocomplete
@@ -151,8 +151,7 @@
           </v-list>
         </v-tab-item>
         <v-tab-item>
-          <AddProduct @productAdded="selectedProduct = getAllProducts[0]" />
-          <v-row class="pa-5">
+          <v-row class="pa-5" style="max-width: 100%">
             <v-col cols="6">
               <div class="caption">Nazwa</div>
               <div>{{ selectedProduct.name }}</div>

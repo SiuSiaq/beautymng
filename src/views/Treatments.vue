@@ -1,7 +1,7 @@
 <template>
   <v-container fluid :class="$vuetify.breakpoint.mobile ? 'pa-0' : ''">
+    <AddTreatment @treatmentAdded="selectedTreatment = getAllTreatments[0]" />
     <v-row no-gutters v-if="!$vuetify.breakpoint.mobile">
-      <AddTreatment @treatmentAdded="selectedTreatment = getAllTreatments[0]" />
       <v-col cols="12" md="3">
         <v-card
           class="px-4 pt-2"
@@ -89,43 +89,35 @@
             >
               Brak zaplanowanych wizyt
             </div>
-            <v-row v-else>
-              <v-col
-                cols="12"
-                md="3"
-                v-for="plvisit in plannedvisits"
-                :key="plvisit.start"
-              >
-                <v-card>
-                  <v-card-text>
-                    <div
-                      v-if="plvisit.confirmed"
-                      class="success--text subtitle-1"
-                    >
-                      Potwierdzono
-                    </div>
-                    <div v-else class="error--text subtitle-1">
-                      Nie potwierdzono
-                    </div>
-                    <div class="text-h5 text--primary">
-                      {{ plvisit.start.slice(0, 10) }}<br />{{
-                        plvisit.start.slice(10)
-                      }}
-                    </div>
-                    <div class="text-h6 font-weight-regular">
-                      {{ plvisit.clientName }}
-                      <br />
-                    </div>
-                  </v-card-text>
-                  <v-card-actions class="mt-n4">
-                    <DeleteEvent
-                      @eventRemoved="eventDeleted($event)"
-                      :eventRef="plvisit.eventRef"
-                    />
-                  </v-card-actions>
-                </v-card>
-              </v-col>
-            </v-row>
+            <div v-else>
+              <v-list two-line>
+                <v-list-item-group>
+                  <v-list-item
+                    v-for="plvisit in plannedvisits"
+                    :key="plvisit.id"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>{{
+                        plvisit.clientName
+                      }}</v-list-item-title>
+                      <v-list-item-subtitle
+                        >{{ plvisit.start }}<br />Status:
+                        <span
+                          :class="
+                            plvisit.confirmed ? 'success--text' : 'error--text'
+                          "
+                          >{{
+                            plvisit.confirmed
+                              ? "Potwierdzono"
+                              : "Nie potwierdzono"
+                          }}</span
+                        ></v-list-item-subtitle
+                      >
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </div>
           </v-col>
           <v-col cols="12">
             <v-expansion-panels focusable>
@@ -137,6 +129,7 @@
                   <v-list>
                     <v-list-item-group>
                       <Visit
+                        :treatment="true"
                         :event="pastevent"
                         v-for="pastevent in pastvisits"
                         :key="pastevent.id"
@@ -201,10 +194,7 @@
         </v-tab-item>
 
         <v-tab-item>
-          <AddTreatment
-            @treatmentAdded="selectedTreatment = getAllTreatments[0]"
-          />
-          <v-row class="pa-5">
+          <v-row class="pa-5" style="max-width: 100%">
             <v-col cols="6">
               <div class="caption">Nazwa zabiegu</div>
               <div>{{ selectedTreatment.name }}</div>
@@ -254,43 +244,37 @@
               >
                 Brak zaplanowanych wizyt
               </div>
-              <v-row v-else>
-                <v-col
-                  cols="12"
-                  md="3"
-                  v-for="plvisit in plannedvisits"
-                  :key="plvisit.start"
-                >
-                  <v-card>
-                    <v-card-text>
-                      <div
-                        v-if="plvisit.confirmed"
-                        class="success--text subtitle-1"
-                      >
-                        Potwierdzono
-                      </div>
-                      <div v-else class="error--text subtitle-1">
-                        Nie potwierdzono
-                      </div>
-                      <div class="text-h5 text--primary">
-                        {{ plvisit.start.slice(0, 10) }}<br />{{
-                          plvisit.start.slice(10)
-                        }}
-                      </div>
-                      <div class="text-h6 font-weight-regular">
-                        {{ plvisit.clientName }}
-                        <br />
-                      </div>
-                    </v-card-text>
-                    <v-card-actions class="mt-n4">
-                      <DeleteEvent
-                        @eventRemoved="eventDeleted($event)"
-                        :eventRef="plvisit.eventRef"
-                      />
-                    </v-card-actions>
-                  </v-card>
-                </v-col>
-              </v-row>
+              <div v-else>
+                <v-list two-line>
+                  <v-list-item-group>
+                    <v-list-item
+                      v-for="plvisit in plannedvisits"
+                      :key="plvisit.id"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{
+                          plvisit.clientName
+                        }}</v-list-item-title>
+                        <v-list-item-subtitle
+                          >{{ plvisit.start }}<br />Status:
+                          <span
+                            :class="
+                              plvisit.confirmed
+                                ? 'success--text'
+                                : 'error--text'
+                            "
+                            >{{
+                              plvisit.confirmed
+                                ? "Potwierdzono"
+                                : "Nie potwierdzono"
+                            }}</span
+                          ></v-list-item-subtitle
+                        >
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list-item-group>
+                </v-list>
+              </div>
             </v-col>
             <v-col cols="12">
               <v-expansion-panels focusable>
@@ -302,6 +286,7 @@
                     <v-list>
                       <v-list-item-group>
                         <Visit
+                          :treatment="true"
                           :event="pastevent"
                           v-for="pastevent in pastvisits"
                           :key="pastevent.id"
@@ -332,7 +317,6 @@
 import { mapGetters, mapActions } from "vuex";
 import AddTreatment from "@/components/AddTreatment";
 import EditTreatment from "@/components/EditTreatment";
-import DeleteEvent from "@/components/DeleteEvent";
 import Visit from "@/components/Visit";
 
 export default {
@@ -340,7 +324,6 @@ export default {
   components: {
     AddTreatment,
     EditTreatment,
-    DeleteEvent,
     Visit,
   },
   data: () => ({
