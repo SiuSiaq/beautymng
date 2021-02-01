@@ -96,24 +96,40 @@ const actions = {
 
             const batch = db.batch();
 
+            //Set event
             batch.set(ref, newEvent);
 
+            //Add surveys to event
+            if(newEvent.surveys.length > 0) {
+                newEvent.surveys.forEach(survey => {
+                    batch.set(ref.collection('surveys').doc(), survey);
+                })
+            }
+
+            //Add surveys to sending queue
+
+            //Add event to treatment's planned visits
             batch.set(newEvent.treatmentRef.collection('plannedvisits').doc(newEvent.id), newItem);
 
+            //Increment number of planned visits on treatment
             batch.update(newEvent.treatmentRef, {
                 plannedcount: increment,
             });
 
+            //Add event to client's planned visits
             batch.set(newEvent.clientRef.collection('plannedvisits').doc(newEvent.id), newItem);
 
+            //Increment number of planned visits on client
             batch.update(newEvent.clientRef, {
                 plannedcount: increment,
             });
 
+            //Increment number of planned visits on doctor
             batch.update(newEvent.doctor.ref, {
                 plannedcount: increment,
             });
 
+            //Update every product amount
             newEvent.products.forEach(product => {
                 batch.update(product.ref, {
                     plannedAmount: changeValue(-1 * product.amount)

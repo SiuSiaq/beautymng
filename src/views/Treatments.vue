@@ -6,6 +6,7 @@
         <v-card
           class="px-4 pt-2"
           :rounded="$vuetify.breakpoint.mobile ? 'xl' : ''"
+          height="100%"
         >
           <v-autocomplete
             no-data-text="Brak zabiegów"
@@ -18,7 +19,7 @@
             label="Zabieg"
             prepend-icon="mdi-needle"
           ></v-autocomplete>
-          <v-list style="height:80vh; overflow-y: scroll;">
+          <v-list class="treatmentList">
             <v-list-item-group>
               <v-list-item
                 @click="selectedTreatment = treatment"
@@ -39,117 +40,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" md="9">
-        <v-row class="pa-5">
-          <v-col cols="6">
-            <div class="caption">Nazwa zabiegu</div>
-            <div>{{ selectedTreatment.name }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Czas zabiegu</div>
-            <div>
-              {{ selectedTreatment.hours }} godziny
-              {{ selectedTreatment.minutes }} minuty
-            </div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Cena</div>
-            <div>{{ selectedTreatment.price }} zł</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Wykonano</div>
-            <div>{{ selectedTreatment.visits }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Zaplanowanych wizyt</div>
-            <div>{{ selectedTreatment.plannedcount }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Wymagane produkty</div>
-            <div v-for="(product, i) in selectedTreatment.products" :key="i">
-              {{ product.name }} {{ product.amount }} {{ product.unit }}
-            </div>
-          </v-col>
-          <v-col cols="12">
-            <div class="caption">Opis</div>
-            <div>
-              {{
-                selectedTreatment.description !== ""
-                  ? selectedTreatment.description
-                  : "Brak opisu"
-              }}
-            </div>
-          </v-col>
-          <v-col cols="12">
-            <div class="caption">Zaplanowane wizyty</div>
-            <div
-              v-if="
-                selectedTreatment.plannedcount === 0 ||
-                  selectedTreatment.plannedcount === undefined
-              "
-            >
-              Brak zaplanowanych wizyt
-            </div>
-            <div v-else>
-              <v-list two-line>
-                <v-list-item-group>
-                  <v-list-item
-                    v-for="plvisit in plannedvisits"
-                    :key="plvisit.id"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title>{{
-                        plvisit.clientName
-                      }}</v-list-item-title>
-                      <v-list-item-subtitle
-                        >{{ plvisit.start }}<br />Status:
-                        <span
-                          :class="
-                            plvisit.confirmed ? 'success--text' : 'error--text'
-                          "
-                          >{{
-                            plvisit.confirmed
-                              ? "Potwierdzono"
-                              : "Nie potwierdzono"
-                          }}</span
-                        ></v-list-item-subtitle
-                      >
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
-            </div>
-          </v-col>
-          <v-col cols="12">
-            <v-expansion-panels focusable>
-              <v-expansion-panel>
-                <v-expansion-panel-header
-                  >Wykonane zabiegi</v-expansion-panel-header
-                >
-                <v-expansion-panel-content>
-                  <v-list>
-                    <v-list-item-group>
-                      <Visit
-                        :treatment="true"
-                        :event="pastevent"
-                        v-for="pastevent in pastvisits"
-                        :key="pastevent.id"
-                      />
-                    </v-list-item-group>
-                  </v-list>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
-            <div class="mt-4" v-if="selectedTreatment.id !== undefined">
-              <v-btn
-                text
-                color="error"
-                @click="deleteTreatment(selectedTreatment.id)"
-                >Usuń</v-btn
-              >
-              <EditTreatment :treatment="selectedTreatment" />
-            </div>
-          </v-col>
-        </v-row>
+          <TreatmentPreview class="treatmentPreview" :treatment="selectedTreatment" @treatmentRemoved="treatmentRemoved" />
       </v-col>
     </v-row>
 
@@ -194,119 +85,7 @@
         </v-tab-item>
 
         <v-tab-item>
-          <v-row class="pa-5" style="max-width: 100%">
-            <v-col cols="6">
-              <div class="caption">Nazwa zabiegu</div>
-              <div>{{ selectedTreatment.name }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Czas zabiegu</div>
-              <div>
-                {{ selectedTreatment.hours }} godziny
-                {{ selectedTreatment.minutes }} minuty
-              </div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Cena</div>
-              <div>{{ selectedTreatment.price }} zł</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Wykonano</div>
-              <div>{{ selectedTreatment.visits }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Zaplanowanych wizyt</div>
-              <div>{{ selectedTreatment.plannedcount }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Wymagane produkty</div>
-              <div v-for="(product, i) in selectedTreatment.products" :key="i">
-                {{ product.name }} {{ product.amount }} {{ product.unit }}
-              </div>
-            </v-col>
-            <v-col cols="12">
-              <div class="caption">Opis</div>
-              <div>
-                {{
-                  selectedTreatment.description !== ""
-                    ? selectedTreatment.description
-                    : "Brak opisu"
-                }}
-              </div>
-            </v-col>
-            <v-col cols="12">
-              <div class="caption">Zaplanowane wizyty</div>
-              <div
-                v-if="
-                  selectedTreatment.plannedcount === 0 ||
-                    selectedTreatment.plannedcount === undefined
-                "
-              >
-                Brak zaplanowanych wizyt
-              </div>
-              <div v-else>
-                <v-list two-line>
-                  <v-list-item-group>
-                    <v-list-item
-                      v-for="plvisit in plannedvisits"
-                      :key="plvisit.id"
-                    >
-                      <v-list-item-content>
-                        <v-list-item-title>{{
-                          plvisit.clientName
-                        }}</v-list-item-title>
-                        <v-list-item-subtitle
-                          >{{ plvisit.start }}<br />Status:
-                          <span
-                            :class="
-                              plvisit.confirmed
-                                ? 'success--text'
-                                : 'error--text'
-                            "
-                            >{{
-                              plvisit.confirmed
-                                ? "Potwierdzono"
-                                : "Nie potwierdzono"
-                            }}</span
-                          ></v-list-item-subtitle
-                        >
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list-item-group>
-                </v-list>
-              </div>
-            </v-col>
-            <v-col cols="12">
-              <v-expansion-panels focusable>
-                <v-expansion-panel>
-                  <v-expansion-panel-header
-                    >Wykonane zabiegi</v-expansion-panel-header
-                  >
-                  <v-expansion-panel-content>
-                    <v-list>
-                      <v-list-item-group>
-                        <Visit
-                          :treatment="true"
-                          :event="pastevent"
-                          v-for="pastevent in pastvisits"
-                          :key="pastevent.id"
-                        />
-                      </v-list-item-group>
-                    </v-list>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
-              </v-expansion-panels>
-              <div class="mt-4" v-if="selectedTreatment.id !== undefined">
-                <v-btn
-                  text
-                  color="error"
-                  @click="deleteTreatment(selectedTreatment.id)"
-                  >Usuń</v-btn
-                >
-                <EditTreatment :treatment="selectedTreatment" />
-              </div>
-            </v-col>
-          </v-row>
+          <TreatmentPreview :treatment="selectedTreatment" @treatmentRemoved="treatmentRemoved" />
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -315,16 +94,13 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import TreatmentPreview from "@/components/TreatmentPreview";
 import AddTreatment from "@/components/AddTreatment";
-import EditTreatment from "@/components/EditTreatment";
-import Visit from "@/components/Visit";
 
 export default {
-  name: "Treatments",
   components: {
     AddTreatment,
-    EditTreatment,
-    Visit,
+    TreatmentPreview,
   },
   data: () => ({
     first: false,
@@ -337,6 +113,8 @@ export default {
       minutes: 0,
       price: 0,
       plannedcount: 0,
+      surveys: [],
+      products: [],
     },
     pastvisits: [],
     plannedvisits: [],
@@ -357,17 +135,10 @@ export default {
         });
       }
     },
-    async deleteTreatment(id) {
-      await this.removeTreatment(id);
+    treatmentRemoved() {
       this.getAllTreatments.length > 0
         ? (this.selectedTreatment = this.getAllTreatments[1])
         : (this.selectedTreatment = null);
-    },
-    async eventDeleted(event) {
-      this.selectedTreatment.plannedvisits = this.selectedTreatment.plannedvisits.filter(
-        (v) => v.eventRef.id !== event.id
-      );
-      this.selectedTreatment.plannedcount--;
     },
   },
   watch: {
@@ -376,9 +147,6 @@ export default {
         if (this.first) this.tab = 1;
         else this.first = true;
         this.searchTreatmentId = val.id;
-        let visits = await this.fetchTreatmentVisits(val.id);
-        this.plannedvisits = visits.plannedvisits;
-        this.pastvisits = visits.pastvisits;
       }
     },
   },
@@ -390,3 +158,28 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.treatmentPreview {
+  max-height: 87vh;
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.treatmentPreview::-webkit-scrollbar {
+  display: none;
+}
+
+.treatmentList {
+  overflow-y: scroll;
+  max-height: 74vh;
+  min-height: 74vh;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.treatmentList::-webkit-scrollbar {
+  display: none;
+}
+</style>

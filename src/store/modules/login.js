@@ -21,8 +21,11 @@ const getters = {
 const actions = {
     async registerUser({ commit }, userCredentials) {
         try {
-            let user = await auth.createUserWithEmailAndPassword(userCredentials.email, userCredentials.password);
+            const user = await auth.createUserWithEmailAndPassword(userCredentials.email, userCredentials.password);
             if (user) {
+                await user.user.updateProfile({
+                    displayName: `${userCredentials.name} ${userCredentials.surname}`
+                });
                 commit('setIsLoggedIn', true);
                 commit('setUser', user.user);
                 await db.collection('users').doc(user.user.uid).set({
@@ -129,10 +132,13 @@ const actions = {
                     dispatch('fetchSalon');
                 }
 
-                dispatch('fetchEvents')
-                dispatch('fetchClients')
-                dispatch('fetchTreatments')
-                dispatch('fetchProducts')
+                if (userData.salon) {
+                    dispatch('fetchEvents')
+                    dispatch('fetchClients')
+                    dispatch('fetchTreatments')
+                    dispatch('fetchProducts')
+                    dispatch('fetchSurveys')
+                }
 
                 /*var email = user.email;
                 var uid = user.uid;

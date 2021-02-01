@@ -5,6 +5,7 @@ import Schedule from '../views/Schedule'
 import Clients from '../views/Clients'
 import Treatments from '../views/Treatments'
 import Products from '../views/Products'
+import Surveys from '../views/Surveys'
 import Today from '../views/Today'
 import Confirms from '../views/Confirms'
 import Login from '../views/Login'
@@ -52,6 +53,14 @@ Vue.use(VueRouter)
     path: '/products',
     name: 'Products',
     component: Products,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/surveys',
+    name: 'Surveys',
+    component: Surveys,
     meta: {
       requiresAuth: true,
     },

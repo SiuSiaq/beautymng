@@ -23,9 +23,11 @@ const actions = {
         let salon = doc.data();
         salon.id = doc.id;
         // ? CHANGE FOR ARRAY CHECK ?
-        if(!state.isAdmin) {
-            if(salon.leader.ref.id === rootState.login.user.uid) commit('setAdmin', true);
-        }
+        salon.users.forEach(user => {
+            if(user.ref.id === rootState.login.user.uid) {
+                commit('setAdmin', true);
+            }
+        })
         commit('setSalon', salon);
     },
     async setDoctor({ dispatch, rootState }, obj) {

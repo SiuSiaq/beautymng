@@ -2,7 +2,7 @@
   <v-dialog
     v-model="dialog"
     :fullscreen="$vuetify.breakpoint.mobile"
-    max-width="400"
+    max-width="600"
     :hide-overlay="$vuetify.breakpoint.mobile"
     :transition="
       $vuetify.breakpoint.mobile
@@ -67,13 +67,7 @@
             label="Opis"
           >
           </v-textarea>
-          <v-btn
-            text
-            color="primary"
-            @click="products.push({ id: null, amount: null })"
-            class="mb-2"
-            >Dodaj produkt</v-btn
-          >
+          <div class="caption">Produkty</div>
           <div v-for="(product, i) in products" :key="i">
             <v-autocomplete
               class="mt-2"
@@ -100,6 +94,76 @@
               >
             </div>
           </div>
+          <v-btn
+            text
+            color="primary"
+            @click="products.push({ id: null, amount: null })"
+            class="mb-2"
+            >Dodaj produkt</v-btn
+          >
+          <div class="caption">Ankiety</div>
+          <div v-for="(survey, i) in surveys" :key="i">
+            <v-autocomplete
+              class="mt-2"
+              v-model="surveys[i].id"
+              :items="getSurveys"
+              item-text="name"
+              item-value="id"
+              label="Ankieta"
+              no-data-text="Brak ankiet"
+              required
+            ></v-autocomplete>
+            <v-select
+              label="Odbiorca"
+              class="mt-2"
+              v-model="survey.recipient"
+              :items="['Wykonawca', 'Klient']"
+              required
+            >
+            </v-select>
+            <div class="d-flex">
+              <v-select
+                class="mr-4"
+                style="max-width: 200px;"
+                label="Przed/Po"
+                flat
+                :items="['Przed', 'Po', 'Natychmiast', 'W dniu wykonania']"
+                v-model="survey.timeType"
+                :rules="[(v) => !!v || `Typ wysłania ankiety jest wymagany`]"
+                required
+              ></v-select>
+              <v-text-field
+                style="max-width: 200px;"
+                label="Liczba dni"
+                :disabled="
+                  survey.timeType === 'Natychmiast' ||
+                    survey.timeType === 'W dniu wykonania'
+                "
+                v-model="survey.days"
+              >
+              </v-text-field>
+              <v-spacer></v-spacer>
+              <v-btn icon class="ml-3"
+                ><v-icon color="error" @click="surveys.splice(i, 1)"
+                  >mdi-delete</v-icon
+                ></v-btn
+              >
+            </div>
+          </div>
+          <v-btn
+            text
+            color="primary"
+            class="mb-2"
+            @click="
+              surveys.push({
+                id: null,
+                timeType: 'Natychmiast',
+                recipient: 'Wykonawca',
+                days: 0,
+              })
+            "
+            >dodaj ankietę</v-btn
+          >
           <div class="caption mb-2">Kolor</div>
           <v-color-picker
             required
@@ -133,6 +197,7 @@ import { mapActions, mapGetters } from "vuex";
 export default {
   name: "AddTreatment",
   data: () => ({
+    surveys: [],
     products: [],
     treatmentDesc: "",
     loader: false,
@@ -182,12 +247,26 @@ export default {
           });
         }
 
+        if (this.surveys.length > 0) {
+          this.surveys.forEach((s) => {
+            const tmp = this.getSurveys.find((v) => v.id === s.id);
+            if (tmp) {
+              s.name = tmp.name;
+              s.ref = this.getUserData.salon.ref
+                .collection("surveys")
+                .doc(tmp.id);
+              delete s.id;
+            }
+          });
+        }
+
         const newTreatment = {
           name: this.treatname,
           hours: this.timeHour,
           minutes: this.timeMinute,
           price: parseFloat(this.price),
           products: this.products ? this.products : [],
+          surveys: this.surveys ? this.surveys : [],
           color: this.color,
           visits: 0,
           plannedcount: 0,
@@ -212,7 +291,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["getAllProducts", "getUserData"]),
+    ...mapGetters(["getAllProducts", "getUserData", "getSurveys"]),
   },
 };
 </script>

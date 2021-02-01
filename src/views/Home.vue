@@ -1,7 +1,7 @@
 <template>
   <v-container
     fluid
-    class="testHomeClass"
+    class="homeClass"
     :class="$vuetify.breakpoint.mobile ? 'pa-0' : ''"
   >
     <div v-if="$vuetify.breakpoint.mobile" style="height: 100%; width: 100%">
@@ -171,6 +171,39 @@
                         </template>
                       </v-expansion-panel-header>
                     </v-expansion-panel>
+
+                    <v-expansion-panel
+                      v-if="
+                        selectedTreatment.surveys &&
+                          selectedTreatment.surveys.length > 0
+                      "
+                    >
+                      <v-expansion-panel-header disable-icon-rotate>
+                        Ankiety: {{ eventSurveys.length }}
+                        <template v-slot:actions>
+                          <v-icon color="primary">mdi-clipboard-outline</v-icon>
+                        </template>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content>
+                        <v-list two-line>
+                          <v-list-item-group>
+                            <v-list-item
+                              v-for="survey in eventSurveys"
+                              :key="survey.id"
+                            >
+                              <v-list-item-avatar class="success">
+                                <v-icon color="white">mdi-account</v-icon>
+                              </v-list-item-avatar>
+                              <v-list-item-content>
+                                <v-list-item-title>{{
+                                  survey.name
+                                }}</v-list-item-title>
+                              </v-list-item-content>
+                            </v-list-item>
+                          </v-list-item-group>
+                        </v-list>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
                   </v-expansion-panels>
                   <v-card-actions>
                     <v-btn text color="black" @click="selectedOpen = false"
@@ -188,8 +221,9 @@
                     />
                   </v-card-actions>
                 </v-card>
-              </v-menu> </v-sheet
-          ></v-card>
+              </v-menu>
+            </v-sheet>
+          </v-card>
         </v-tab-item>
 
         <v-tab-item>
@@ -199,7 +233,8 @@
             >
             <v-list
               v-if="getTodayNotConfirmedEvents.length > 0"
-              style="height: 75.3vh; overflow-y: scroll;"
+              style="height: 75.3vh;"
+              class="homeList"
               three-line
             >
               <v-list-item-group>
@@ -229,7 +264,15 @@
         </v-tab-item>
         <v-tab-item>
           <v-card class="pa-3">
-            <v-list three-line style="height: 84vh; overflow-y: scroll;">
+            <v-card-title class="text-h4 grey--text text--darken-2"
+              >Produkty</v-card-title
+            >
+            <v-list
+              three-line
+              style="height: 84vh;"
+              class="homeList"
+              v-if="getLowProducts.length > 0"
+            >
               <v-list-item-group>
                 <v-list-item
                   v-for="product in getLowProducts"
@@ -243,7 +286,15 @@
                   <v-list-item-content>
                     <v-list-item-title>{{ product.name }}</v-list-item-title>
                     <v-list-item-subtitle
-                      >Obecnie: {{ product.amount }} {{ product.unit }}<br />
+                      >Obecnie:
+                      <span
+                        :class="
+                          product.amount < product.newAmount
+                            ? 'error--text'
+                            : ''
+                        "
+                        >{{ product.amount }} {{ product.unit }}</span
+                      ><br />
                       Pozostanie: {{ product.plannedAmount }}
                       {{ product.unit }}</v-list-item-subtitle
                     >
@@ -251,6 +302,21 @@
                 </v-list-item>
               </v-list-item-group>
             </v-list>
+            <div v-else style="height: 75.3vh">
+              <div class="d-flex">
+                <v-icon
+                  :size="!$vuetify.breakpoint.mobile ? 50 : 30"
+                  color="success"
+                  class="fab mr-3"
+                  >mdi-check-circle</v-icon
+                >
+                <div
+                  class="mt-md-2 text-subtitle-1 font-weight-regular text-md-h5 success--text"
+                >
+                  Żaden produkt się nie kończy
+                </div>
+              </div>
+            </div>
           </v-card>
         </v-tab-item>
       </v-tabs-items>
@@ -447,6 +513,8 @@
             v-if="getTodayNotConfirmedEvents.length > 0"
             :class="!$vuetify.breakpoint.mobile ? 'desktop' : ''"
             three-line
+            style="height: 69vh;"
+            class="homeList"
           >
             <v-list-item-group>
               <ConfirmEventItem
@@ -476,7 +544,12 @@
           <v-card-title class="text-h4 grey--text text--darken-2"
             >Produkty</v-card-title
           >
-          <v-list three-line style="height: 69vh; overflow-y: scroll;">
+          <v-list
+            three-line
+            style="height: 69vh;"
+            class="homeList"
+            v-if="getLowProducts.length > 0"
+          >
             <v-list-item-group>
               <v-list-item v-for="product in getLowProducts" :key="product.id">
                 <v-list-item-avatar
@@ -487,7 +560,13 @@
                 <v-list-item-content>
                   <v-list-item-title>{{ product.name }}</v-list-item-title>
                   <v-list-item-subtitle
-                    >Obecnie: {{ product.amount }} {{ product.unit }}<br />
+                    >Obecnie:
+                    <span
+                      :class="
+                        product.amount < product.newAmount ? 'error--text' : ''
+                      "
+                      >{{ product.amount }} {{ product.unit }}</span
+                    ><br />
                     Pozostanie:
                     <span
                       :class="
@@ -502,6 +581,19 @@
               </v-list-item>
             </v-list-item-group>
           </v-list>
+          <div v-else class="d-flex">
+            <v-icon
+              :size="!$vuetify.breakpoint.mobile ? 50 : 30"
+              color="success"
+              class="fab mr-3"
+              >mdi-check-circle</v-icon
+            >
+            <div
+              class="mt-md-2 text-subtitle-1 font-weight-regular text-md-h5 success--text"
+            >
+              Żaden produkt się nie kończy
+            </div>
+          </div>
         </v-card>
       </v-col>
     </v-row>
@@ -514,6 +606,7 @@ import EventSummary from "@/components/EventSummary";
 import ConfirmEventItem from "@/components/ConfirmEventItem";
 export default {
   data: () => ({
+    eventSurveys: [],
     focus: "",
     value: "",
     ready: false,
@@ -586,6 +679,22 @@ export default {
       let treatment = await this.selectedEvent.treatmentRef.get();
       this.selectedTreatment = treatment.data();
       this.selectedTreatment.id = treatment.id;
+
+      if (this.selectedTreatment.surveys.length > 0) {
+        let surveys = [];
+        const res = await this.getUserData.salon.ref
+          .collection("events")
+          .doc(this.selectedEvent.id)
+          .collection("surveys")
+          .get();
+        res.forEach((doc) => {
+          surveys.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        this.eventSurveys = surveys;
+      }
     },
   },
   computed: {
@@ -613,7 +722,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.testHomeClass {
+.homeClass {
   background: #d984a3;
   height: 100%;
 }
@@ -636,5 +745,15 @@ export default {
     margin-top: -5px;
     margin-left: -6.5px;
   }
+}
+
+.homeList {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-y: scroll;
+}
+
+.homeList::-webkit-scrollbar {
+  display: none;
 }
 </style>

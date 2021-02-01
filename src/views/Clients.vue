@@ -3,7 +3,7 @@
     <AddClient @clientAdded="selectedClient = getAllClients[0]" />
     <v-row no-gutters v-if="!$vuetify.breakpoint.mobile">
       <v-col cols="12" md="3">
-        <v-card class="px-4 pt-2">
+        <v-card class="px-4 pt-2" height="100%">
           <v-autocomplete
             no-data-text="Brak klientów"
             @change="searchSelect"
@@ -15,7 +15,7 @@
             label="Klient"
             prepend-icon="mdi-account-search-outline"
           ></v-autocomplete>
-          <v-list three-line style="height:80vh; overflow-y: scroll;">
+          <v-list three-line class="clientList">
             <v-list-item-group>
               <v-list-item
                 @click="selectedClient = client"
@@ -38,106 +38,11 @@
         </v-card>
       </v-col>
       <v-col cols="12" md="9">
-        <v-row class="pa-5">
-          <v-col cols="6">
-            <div class="caption">Imię</div>
-            <div>{{ selectedClient.name }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Nazwisko</div>
-            <div>{{ selectedClient.surname }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Telefon</div>
-            <div>{{ selectedClient.phone }}</div>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <div class="caption">Email</div>
-            <div>{{ selectedClient.email }}</div>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <div class="caption">Zarejestrowany</div>
-            <div>{{ registeredText }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Liczba wizyt</div>
-            <div>{{ selectedClient.visits }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Zaplanowanych wizyt</div>
-            <div>{{ selectedClient.plannedcount }}</div>
-          </v-col>
-          <v-col cols="12">
-            <div class="caption">Zaplanowane wizyty</div>
-            <div
-              v-if="
-                selectedClient.plannedcount === 0 ||
-                  selectedClient.plannedcount === undefined
-              "
-            >
-              Brak zaplanowanych wizyt
-            </div>
-            <div v-else>
-              <v-list two-line>
-                <v-list-item-group>
-                  <v-list-item
-                    v-for="plvisit in plannedvisits"
-                    :key="plvisit.id"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title>{{ plvisit.name }}</v-list-item-title>
-                      <v-list-item-subtitle
-                        >{{ plvisit.start }}<br />Status:
-                        <span
-                          :class="
-                            plvisit.confirmed ? 'success--text' : 'error--text'
-                          "
-                          >{{
-                            plvisit.confirmed
-                              ? "Potwierdzono"
-                              : "Nie potwierdzono"
-                          }}</span
-                        ></v-list-item-subtitle
-                      >
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
-            </div>
-          </v-col>
-          <v-col cols="12">
-            <v-expansion-panels focusable>
-              <v-expansion-panel>
-                <v-expansion-panel-header>Wizyty</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <v-list>
-                    <v-list-item-group>
-                      <Visit
-                        :treatment="false"
-                        :event="pastevent"
-                        v-for="pastevent in pastvisits"
-                        :key="pastevent.id"
-                      />
-                    </v-list-item-group>
-                  </v-list>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
-            <div class="mt-4">
-              <v-btn
-                v-if="selectedClient.id !== undefined"
-                text
-                color="error"
-                @click="deleteClient(selectedClient.id)"
-                >Usuń</v-btn
-              >
-              <EditClient
-                v-if="selectedClient.id !== undefined"
-                :client="selectedClient"
-              />
-            </div>
-          </v-col>
-        </v-row>
+        <ClientPreview
+          :client="selectedClient"
+          @clientRemoved="clientRemoved"
+          class="clientPreview"
+        />
       </v-col>
     </v-row>
 
@@ -183,110 +88,10 @@
           </v-list>
         </v-tab-item>
         <v-tab-item>
-          <v-row class="pa-5" style="max-width: 100%">
-            <v-col cols="6">
-              <div class="caption">Imię</div>
-              <div>{{ selectedClient.name }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Nazwisko</div>
-              <div>{{ selectedClient.surname }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Telefon</div>
-              <div>{{ selectedClient.phone }}</div>
-            </v-col>
-            <v-col :cols="selectedClient.email.length < 19 ? '6' : '12'" md="6">
-              <div class="caption">Email</div>
-              <div>{{ selectedClient.email }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Zarejestrowany</div>
-              <div>{{ registeredText }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Liczba wizyt</div>
-              <div>{{ selectedClient.visits }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Zaplanowanych wizyt</div>
-              <div>{{ selectedClient.plannedcount }}</div>
-            </v-col>
-            <v-col cols="12">
-              <div class="caption">Zaplanowane wizyty</div>
-              <div
-                v-if="
-                  selectedClient.plannedcount === 0 ||
-                    selectedClient.plannedcount === undefined
-                "
-              >
-                Brak zaplanowanych wizyt
-              </div>
-              <div v-else>
-                <v-list two-line>
-                  <v-list-item-group>
-                    <v-list-item
-                      v-for="plvisit in plannedvisits"
-                      :key="plvisit.id"
-                    >
-                      <v-list-item-content>
-                        <v-list-item-title>{{
-                          plvisit.name
-                        }}</v-list-item-title>
-                        <v-list-item-subtitle
-                          >{{ plvisit.start }}<br />Status:
-                          <span
-                            :class="
-                              plvisit.confirmed
-                                ? 'success--text'
-                                : 'error--text'
-                            "
-                            >{{
-                              plvisit.confirmed
-                                ? "Potwierdzono"
-                                : "Nie potwierdzono"
-                            }}</span
-                          ></v-list-item-subtitle
-                        >
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list-item-group>
-                </v-list>
-              </div>
-            </v-col>
-            <v-col cols="12">
-              <v-expansion-panels focusable>
-                <v-expansion-panel>
-                  <v-expansion-panel-header>Wizyty</v-expansion-panel-header>
-                  <v-expansion-panel-content>
-                    <v-list>
-                      <v-list-item-group>
-                        <Visit
-                          :treatment="false"
-                          :event="pastevent"
-                          v-for="pastevent in pastvisits"
-                          :key="pastevent.id"
-                        />
-                      </v-list-item-group>
-                    </v-list>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
-              </v-expansion-panels>
-              <div class="mt-4">
-                <v-btn
-                  v-if="selectedClient.id !== undefined"
-                  text
-                  color="error"
-                  @click="deleteClient(selectedClient.id)"
-                  >Usuń</v-btn
-                >
-                <EditClient
-                  v-if="selectedClient.id !== undefined"
-                  :client="selectedClient"
-                />
-              </div>
-            </v-col>
-          </v-row>
+          <ClientPreview
+            :client="selectedClient"
+            @clientRemoved="clientRemoved"
+          />
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -300,15 +105,13 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import AddClient from "@/components/AddClient";
-import EditClient from "@/components/EditClient";
-import Visit from "@/components/Visit";
+import ClientPreview from "@/components/ClientPreview";
 
 export default {
   name: "Clients",
   components: {
+    ClientPreview,
     AddClient,
-    EditClient,
-    Visit,
   },
   data: () => ({
     tab: null,
@@ -320,28 +123,13 @@ export default {
       email: "",
     },
     searchClientId: null,
-    pastvisits: [],
-    plannedvisits: [],
-    visits: 0,
-    planvisits: 0,
     deleteEventLoader: false,
   }),
   computed: {
     ...mapGetters(["getAllClients"]),
-    registeredText() {
-      if (this.selectedClient.registered) {
-        const date = this.selectedClient.registered.toDate();
-        let dd = String(date.getDate()).padStart(2, "0");
-        let mm = String(date.getMonth() + 1).padStart(2, "0");
-        let yy = date.getFullYear();
-        return `${dd}.${mm}.${yy}`;
-      } else {
-        return "Brak";
-      }
-    },
   },
   methods: {
-    ...mapActions(["removeClient", "removeEvent", "fetchClientVisits"]),
+    ...mapActions(["removeClient", "removeEvent"]),
     searchSelect() {
       if (this.searchClientId !== undefined) {
         this.selectedClient = this.getAllClients.find((v) => {
@@ -355,11 +143,10 @@ export default {
         ? (this.selectedClient = this.getAllClients[0])
         : (this.selectedClient = null);
     },
-    async eventDeleted(event) {
-      this.selectedClient.plannedvisits = this.selectedClient.plannedvisits.filter(
-        (v) => v.eventRef.id !== event.id
-      );
-      this.selectedClient.plannedcount--;
+    clientRemoved() {
+      this.getAllClients.length > 0
+        ? (this.selectedClient = this.getAllClients[0])
+        : (this.selectedClient = null);
     },
   },
   watch: {
@@ -368,9 +155,6 @@ export default {
         if (this.first) this.tab = 1;
         else this.first = true;
         this.searchClientId = val.id;
-        let visits = await this.fetchClientVisits(val.id);
-        this.plannedvisits = visits.plannedvisits;
-        this.pastvisits = visits.pastvisits;
       }
     },
   },
@@ -382,3 +166,29 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.clientPreview {
+  max-height: 87vh;
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.clientPreview::-webkit-scrollbar {
+  display: none;
+}
+
+.clientList {
+  overflow-y: scroll;
+  max-height: 74vh;
+  min-height: 74vh;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.clientList::-webkit-scrollbar {
+  display: none;
+}
+
+</style>

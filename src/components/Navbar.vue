@@ -1,7 +1,10 @@
 <template>
   <nav>
     <v-app-bar flat dark color="primary" app>
-      <v-app-bar-nav-icon v-if="getIsLoggedIn" @click="draw = !draw"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon
+        v-if="getIsLoggedIn"
+        @click="draw = !draw"
+      ></v-app-bar-nav-icon>
 
       <v-toolbar-title class="text-uppercase font-weight-bold white--text">
         Beauty
@@ -9,45 +12,51 @@
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-menu
-      transition="slide-y-transition"
-      close-on-content-click
-      bottom
-      left
-    >
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          icon
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-icon>mdi-dots-vertical</v-icon>
-        </v-btn>
-      </template>
-      <v-list>
-        <AddClientVisit />
-      </v-list>
-    </v-menu>
+        transition="slide-y-transition"
+        close-on-content-click
+        bottom
+        left
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on" disabled>
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <AddClientVisit />
+        </v-list>
+      </v-menu>
     </v-app-bar>
 
     <v-navigation-drawer v-model="draw" color="secondary" app temporary>
       <v-list nav>
         <v-list-item-group>
-          <v-list-item v-for="item in items" :key="item.text" router :to="item.route">
+          <v-list-item
+            v-for="item in items"
+            :key="item.text"
+            router
+            :to="item.route"
+          >
             <v-list-item-icon>
-              <v-icon class="white--text">{{item.icon}}</v-icon>
+              <v-icon class="white--text">{{ item.icon }}</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
-              <v-list-item-title class="white--text" v-text="item.text"></v-list-item-title>
+              <v-list-item-title
+                class="white--text"
+                v-text="item.text"
+              ></v-list-item-title>
             </v-list-item-content>
-          </v-list-item >
+          </v-list-item>
           <v-list-item v-if="isAdmin" :to="settings">
             <v-list-item-icon>
               <v-icon class="white--text">mdi-cog</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
-              <v-list-item-title class="white--text">Ustawienia salonu</v-list-item-title>
+              <v-list-item-title class="white--text"
+                >Ustawienia salonu</v-list-item-title
+              >
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="logOutClick">
@@ -66,15 +75,15 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
-import AddClientVisit from '@/components/AddClientVisit'
+import { mapActions, mapGetters } from "vuex";
+import AddClientVisit from "@/components/AddClientVisit";
 export default {
   components: {
-    AddClientVisit
+    AddClientVisit,
   },
   data: () => ({
     draw: false,
-    settings: '/settings',
+    settings: "/settings",
     items: [
       { icon: "mdi-view-dashboard", text: "Home", route: "/" },
       { icon: "mdi-calendar-text", text: "Kalendarz", route: "/calendar" },
@@ -83,22 +92,22 @@ export default {
       { icon: "mdi-account-box-multiple", text: "Klienci", route: "/clients" },
       { icon: "mdi-needle", text: "Zabiegi", route: "/treatments" },
       { icon: "mdi-package-variant", text: "Produkty", route: "/products" },
-      { icon: "mdi-finance", text: "Statystyki", route: "/statistics" },
+      { icon: "mdi-clipboard-outline", text: "Ankiety", route: "/surveys" },
     ],
     options: [
-      {icon: 'mdi-account-arrow-left', text: 'Umów nowego klienta'},
-      {icon: 'mdi-account', text: 'Umów istniejącego klienta'},
+      { icon: "mdi-account-arrow-left", text: "Umów nowego klienta" },
+      { icon: "mdi-account", text: "Umów istniejącego klienta" },
     ],
   }),
   methods: {
-    ...mapActions(['logOut']),
+    ...mapActions(["logOut"]),
     async logOutClick() {
       await this.logOut();
-      this.$router.go('/login');
-    }
+      this.$router.go("/login");
+    },
   },
   computed: {
-    ...mapGetters(['getIsLoggedIn', 'isAdmin'])
+    ...mapGetters(["getIsLoggedIn", "isAdmin"]),
   },
 };
 </script>

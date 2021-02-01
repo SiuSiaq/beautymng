@@ -211,6 +211,7 @@ export default {
         price: treatment.price,
         additionalTreatments: [],
         products: treatment.products,
+        surveys: treatment.surveys,
       };
 
       this.loader = true;

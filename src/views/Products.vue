@@ -3,7 +3,7 @@
     <AddProduct @productAdded="selectedProduct = getAllProducts[0]" />
     <v-row no-gutters v-if="!$vuetify.breakpoint.mobile">
       <v-col cols="12" md="3">
-        <v-card class="px-4 pt-2">
+        <v-card class="px-4 pt-2" height="100%">
           <v-autocomplete
             no-data-text="Brak produktów"
             @change="searchSelect"
@@ -15,7 +15,7 @@
             label="Produkt"
             prepend-icon="mdi-account-search-outline"
           ></v-autocomplete>
-          <v-list three-line style="height:80vh; overflow-y: scroll;">
+          <v-list three-line class="productList">
             <v-list-item-group>
               <v-list-item
                 @click="selectedProduct = product"
@@ -30,7 +30,13 @@
                 <v-list-item-content>
                   <v-list-item-title>{{ product.name }}</v-list-item-title>
                   <v-list-item-subtitle
-                    >Obecnie: {{ product.amount }} {{ product.unit }}<br />
+                    >Obecnie:
+                    <span
+                      :class="
+                        product.amount < product.newAmount ? 'error--text' : ''
+                      "
+                      >{{ product.amount }} {{ product.unit }}</span
+                    ><br />
                     Pozostanie:
                     <span
                       :class="
@@ -48,54 +54,11 @@
         </v-card>
       </v-col>
       <v-col cols="12" md="9">
-        <v-row class="pa-5">
-          <v-col cols="6">
-            <div class="caption">Nazwa</div>
-            <div>{{ selectedProduct.name }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Producent</div>
-            <div>{{ selectedProduct.producer }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Ilość w opakowaniu</div>
-            <div>
-              {{ selectedProduct.newAmount }} {{ selectedProduct.unit }}
-            </div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Dodano</div>
-            <div>{{ registeredText }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Pozostało</div>
-            <div>{{ selectedProduct.amount }} {{ selectedProduct.unit }}</div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Pozostanie</div>
-            <div>
-              {{ selectedProduct.plannedAmount }} {{ selectedProduct.unit }}
-            </div>
-          </v-col>
-          <v-col cols="6">
-            <div class="caption">Użyto</div>
-            <div>
-              {{ selectedProduct.used }}
-              {{ selectedProduct.used === 1 ? "raz" : "razy" }}
-            </div>
-          </v-col>
-          <v-col cols="12">
-            <div class="mt-4">
-              <v-btn
-                v-if="selectedProduct.id !== undefined"
-                text
-                color="error"
-                @click="deleteProduct(selectedProduct.id)"
-                >Usuń</v-btn
-              >
-            </div>
-          </v-col>
-        </v-row>
+        <ProductPreview
+          @productRemoved="productRemoved"
+          :product="selectedProduct"
+          class="productPreview"
+        />
       </v-col>
     </v-row>
 
@@ -134,7 +97,13 @@
                 <v-list-item-content>
                   <v-list-item-title>{{ product.name }}</v-list-item-title>
                   <v-list-item-subtitle
-                    >Obecnie: {{ product.amount }} {{ product.unit }}<br />
+                    >Obecnie:
+                    <span
+                      :class="
+                        product.amount < product.newAmount ? 'error--text' : ''
+                      "
+                      >{{ product.amount }} {{ product.unit }}</span
+                    ><br />
                     Pozostanie:
                     <span
                       :class="
@@ -151,54 +120,10 @@
           </v-list>
         </v-tab-item>
         <v-tab-item>
-          <v-row class="pa-5" style="max-width: 100%">
-            <v-col cols="6">
-              <div class="caption">Nazwa</div>
-              <div>{{ selectedProduct.name }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Producent</div>
-              <div>{{ selectedProduct.producer }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Ilość w opakowaniu</div>
-              <div>
-                {{ selectedProduct.newAmount }} {{ selectedProduct.unit }}
-              </div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Dodano</div>
-              <div>{{ registeredText }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Pozostało</div>
-              <div>{{ selectedProduct.amount }} {{ selectedProduct.unit }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Pozostanie</div>
-              <div>
-                {{ selectedProduct.plannedAmount }} {{ selectedProduct.unit }}
-              </div>
-            </v-col>
-            <v-col cols="6">
-              <div class="caption">Użyto</div>
-              <div>
-                {{ selectedProduct.used }}
-                {{ selectedProduct.used === 1 ? "raz" : "razy" }}
-              </div>
-            </v-col>
-            <v-col cols="12">
-              <div class="mt-4">
-                <v-btn
-                  v-if="selectedProduct.id !== undefined"
-                  text
-                  color="error"
-                  @click="deleteProduct(selectedProduct.id)"
-                  >Usuń</v-btn
-                >
-              </div>
-            </v-col>
-          </v-row>
+          <ProductPreview
+            @productRemoved="productRemoved"
+            :product="selectedProduct"
+          />
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -208,11 +133,13 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import AddProduct from "@/components/AddProduct";
+import ProductPreview from "@/components/ProductPreview";
 
 export default {
   name: "Clients",
   components: {
     AddProduct,
+    ProductPreview,
   },
   data: () => ({
     tab: 0,
@@ -259,6 +186,11 @@ export default {
         ? (this.selectedProduct = this.getAllProducts[0])
         : (this.selectedProduct = null);
     },
+    productRemoved() {
+      this.getAllProducts.length > 0
+        ? (this.selectedProduct = this.getAllProducts[0])
+        : (this.selectedProduct = null);
+    },
   },
   watch: {
     async selectedProduct(val) {
@@ -277,3 +209,28 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.productPreview {
+  max-height: 87vh;
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.productPreview::-webkit-scrollbar {
+  display: none;
+}
+
+.productList {
+  overflow-y: scroll;
+  max-height: 74vh;
+  min-height: 74vh;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.productList::-webkit-scrollbar {
+  display: none;
+}
+</style>

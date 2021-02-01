@@ -1,3 +1,5 @@
+import { changeValue } from '@/main'
+
 const state = {
     products: [],
 };
@@ -78,6 +80,25 @@ const actions = {
         }
         return;
     },
+    async addProductToStock({ dispatch, rootState }, product) {
+        // TODO add costs
+        try {
+            await rootState.login.userData.salon.ref.collection('products').doc(product.id).update({
+                amount: changeValue(product.amount),
+                plannedAmount: changeValue(product.amount)
+            })
+            dispatch('showAlert', {
+                text: 'Pomyślnie dodano produkt do magazynu',
+                success: true,
+            });
+        } catch (error) {
+            console.error(error);
+            dispatch('showAlert', {
+                text: 'Nie udało się zaktualizować produktu',
+                success: false,
+            });
+        }
+    }
 };
 
 const mutations = {
