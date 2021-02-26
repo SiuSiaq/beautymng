@@ -7,18 +7,21 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 import 'firebase/storage'
+import privateConfig from '../privateConfig'
 
 Vue.config.productionTip = false
 
+const firebaseInitConfig = privateConfig.config.firebase
+
 firebase.initializeApp({
-  apiKey: "AIzaSyDZuwNnftQPQX4mcf-UwLIOjxE0HC88KYk",
-  authDomain: "beutymng.firebaseapp.com",
-  databaseURL: "https://beutymng.firebaseio.com",
-  projectId: "beutymng",
-  storageBucket: "beutymng.appspot.com",
-  messagingSenderId: "728645110661",
-  appId: "1:728645110661:web:226b79631083a9148a52ec",
-  measurementId: "G-J7R1N5H844"
+  apiKey: firebaseInitConfig.apiKey,
+  authDomain: firebaseInitConfig.authDomain,
+  databaseURL: firebaseInitConfig.databaseURL,
+  projectId: firebaseInitConfig.projectId,
+  storageBucket: firebaseInitConfig.storageBucket,
+  messagingSenderId: firebaseInitConfig.messagingSenderId,
+  appId: firebaseInitConfig.appId,
+  measurementId: firebaseInitConfig.measurementId
 })
 
 export const db = firebase.firestore();
