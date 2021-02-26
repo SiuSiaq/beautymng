@@ -45,13 +45,6 @@
           ></v-text-field>
 
           <v-text-field
-            v-model="clientEmail"
-            :rules="emailRules"
-            label="Email"
-            required
-          ></v-text-field>
-
-          <v-text-field
             v-model="clientPhone"
             :rules="phoneRules"
             label="Telefon"
@@ -120,7 +113,6 @@ export default {
         name: this.clientName,
         surname: this.clientSurname,
         fullname: `${this.clientName} ${this.clientSurname}`,
-        email: this.clientEmail,
         phone: this.clientPhone,
         registered: new Date(),
         visits: 0,

@@ -29,7 +29,11 @@
                   <v-list-item-title>{{ client.fullname }}</v-list-item-title>
                   <v-list-item-subtitle
                     >{{ client.phone }} <br />
-                    {{ client.email }}</v-list-item-subtitle
+                    {{
+                      client.plannedcount > 0
+                        ? plannedDisplayText(client.plannedcount)
+                        : "Brak zaplanowanych wizyt"
+                    }}</v-list-item-subtitle
                   >
                 </v-list-item-content>
               </v-list-item>
@@ -130,6 +134,11 @@ export default {
   },
   methods: {
     ...mapActions(["removeClient", "removeEvent"]),
+    plannedDisplayText(num) {
+      if(num === 1) return '1 zaplanowana wizyta'
+      else if(num > 1 && num < 5) return '2 zaplanowane wizyty'
+      else return `${num} zaplanowanych wizyt`
+    },
     searchSelect() {
       if (this.searchClientId !== undefined) {
         this.selectedClient = this.getAllClients.find((v) => {
@@ -190,5 +199,4 @@ export default {
 .clientList::-webkit-scrollbar {
   display: none;
 }
-
 </style>

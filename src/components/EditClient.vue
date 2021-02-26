@@ -31,8 +31,6 @@
           required
         ></v-text-field>
 
-        <v-text-field v-model="client.email" :rules="emailRules" label="Email" required></v-text-field>
-
         <v-text-field v-model="client.phone" :rules="phoneRules" label="Telefon" required></v-text-field>
       </v-form>
 
@@ -88,7 +86,6 @@ export default {
         id: this.client.id,
         name: this.client.name,
         surname: this.client.surname,
-        email: this.client.email,
         phone: this.client.phone,
         registered: this.client.registered,
         plannedcount: this.client.plannedcount,

@@ -12,7 +12,11 @@
       <div class="caption">Telefon</div>
       <div>{{ client.phone }}</div>
     </v-col>
-    <v-col :cols="client.email.length < 19 ? '6' : '12'" md="6">
+    <v-col
+      v-if="client.email"
+      :cols="client.email.length < 19 ? '6' : '12'"
+      md="6"
+    >
       <div class="caption">Email</div>
       <div>{{ client.email }}</div>
     </v-col>
@@ -80,13 +84,11 @@
         </v-expansion-panel>
       </v-expansion-panels>
       <div class="mt-4">
-        <v-btn
+        <DeleteClient
+          :id="client.id"
           v-if="client.id"
-          text
-          color="error"
-          @click="deleteClient(client.id)"
-          >Usuń</v-btn
-        >
+          @clientRemoved="$emit('clientRemoved')"
+        />
         <EditClient v-if="client.id" :client="client" />
       </div>
     </v-col>
@@ -97,12 +99,14 @@
 import { mapActions } from "vuex";
 import EditClient from "@/components/EditClient";
 import Visit from "@/components/Visit";
+import DeleteClient from "@/components/DeleteClient.vue";
 
 export default {
   props: ["client"],
   components: {
     EditClient,
     Visit,
+    DeleteClient,
   },
   data: () => ({
     plannedvisits: [],
@@ -123,10 +127,6 @@ export default {
   },
   methods: {
     ...mapActions(["fetchClientVisits", "removeClient"]),
-    async deleteClient(id) {
-      await this.removeClient(id);
-      this.$emit("clientRemoved");
-    },
     async getVisits() {
       if (this.client.id) {
         let visits = await this.fetchClientVisits(this.client.id);
